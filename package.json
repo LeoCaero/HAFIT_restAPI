@@ -1,0 +1,36 @@
+{
+  "name": "hafit_expressrestapi",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LeoCaero/HAFIT_restAPI.git"
+  },
+  "keywords": [
+    "express",
+    "nodejs",
+    "js",
+    "node",
+    "mongodb"
+  ],
+  "author": "hafit",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/LeoCaero/HAFIT_restAPI/issues"
+  },
+  "homepage": "https://github.com/LeoCaero/HAFIT_restAPI#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "mongoose": "^7.0.2",
+    "nodemon": "^2.0.21",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^4.6.2"
+  }
+}
