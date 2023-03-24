@@ -7,7 +7,7 @@ const productSchema = new mongoose.Schema({
   },
   price: {
     type: mongoose.Decimal128,
-    required: true,
+    default: 0.00,
   },
   description: {
     type: String,
