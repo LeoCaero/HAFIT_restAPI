@@ -1,16 +1,16 @@
-const express = require('express');
-const Product = require('../models/product');
+const express = require("express");
+const Product = require("../models/product");
 
 const router = express.Router();
 
 module.exports = router;
-
 
 /**
  * @swagger
  * /api/products:
  *   get:
  *     summary: Get all products
+ *     tags: [Products]
  *     description: Get all products stored in the database
  *     responses:
  *       200:
@@ -24,16 +24,15 @@ module.exports = router;
  *       500:
  *         description: Internal server error
  */
-router.get('/products', async (req, res) => {
-    try{
-        const data = await Product.find();
-        // data.forEach(product => product.image = product.image.substring(0,40) + '...');
-        res.json(data);
-    }   
-    catch(error){
-        res.status(500).json({message: error.message})
-    }
-})
+router.get("/all", async (req, res) => {
+  try {
+    const data = await Product.find();
+    // data.forEach(product => product.image = product.image.substring(0,40) + '...');
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
 
 /**
  * @swagger
@@ -63,25 +62,31 @@ router.get('/products', async (req, res) => {
  *     security:
  *       - BearerAuth: []
  */
-router.post('/product', async (req, res) => {
-    try {
-      const { name, price, description, type, stock, image } = req.body;
-      const product = new Product({ name, price, description, type, stock, image });
-      const newProduct = await product.save();
-      res.status(201).json(newProduct);
-    } catch (error) {
-      res.status(400).json({ message: error.message });
-    }
-  });
+router.post("/add", async (req, res) => {
+  try {
+    const { name, price, description, type, stock, image } = req.body;
+    const product = new Product({
+      name,
+      price,
+      description,
+      type,
+      stock,
+      image,
+    });
+    const newProduct = await product.save();
+    res.status(201).json(newProduct);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
 
-  router.post('/products/bulk', async (req, res) => {
-    try {
-      const products = req.body;
-      const newProducts = await Product.insertMany(products);
-      res.status(201).json(newProducts);
-    } catch (error) {
-      res.status(400).json({ message: error.message });
-    }
-  });
-
+router.post("/bulk", async (req, res) => {
+  try {
+    const products = req.body;
+    const newProducts = await Product.insertMany(products);
+    res.status(201).json(newProducts);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
 

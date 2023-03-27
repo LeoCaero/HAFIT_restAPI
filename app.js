@@ -2,7 +2,8 @@ require('dotenv').config();
 const express = require('express');
 const connectToDatabase = require('./config/db');
 const swaggerConfig = require('./config/swagger');
-const routes = require('./routes/routes');
+const usersRouter = require('./routes/user');
+const productsRouter = require('./routes/product');
 
 const cors = require('cors');
 
@@ -18,7 +19,8 @@ app.use(express.urlencoded({ extended: true }));
 swaggerConfig(app);
 
 // Routes
-app.use('/api', routes);
+app.use('/api/user', usersRouter);
+app.use('/api/product', productsRouter);
 
 // Database Connection
 connectToDatabase();
