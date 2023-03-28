@@ -92,7 +92,6 @@ router.post("/add", async (req, res) => {
   }
 });
 
-
 /**
  * @swagger
  * /api/user/searchBy:
@@ -113,7 +112,7 @@ router.post("/add", async (req, res) => {
  *         schema:
  *           type: string
  *         required: true
- *         description: The data of the user to retrieve       
+ *         description: The data of the user to retrieve
  *     responses:
  *       200:
  *         description: A user object
@@ -127,9 +126,19 @@ router.post("/add", async (req, res) => {
  *         description: Internal server error
  */
 router.get("/searchBy", async (req, res) => {
-  const data = req.query.data;
-  const searchBy = req.query.searchBy;
+  var data = req.query.data;
+  var searchBy = req.query.searchBy;
   const query = {};
+
+  if (!searchBy || !data) {
+    if (req.body && Object.keys(req.body).length) {
+      searchBy = req.body.searchBy;
+      data = req.body.data;
+    } else {
+      return res.status(400).json({ message: errors.notFound.missing });
+    }
+  }
+
   query[searchBy] = data;
 
   try {
