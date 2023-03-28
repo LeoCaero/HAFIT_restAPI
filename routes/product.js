@@ -7,7 +7,7 @@ module.exports = router;
 
 /**
  * @swagger
- * /api/products:
+ * /api/product/all:
  *   get:
  *     summary: Get all products
  *     tags: [Products]
@@ -36,7 +36,7 @@ router.get("/all", async (req, res) => {
 
 /**
  * @swagger
- * /api/product:
+ * /api/product/add:
  *   post:
  *     summary: Create a new product
  *     tags: [Products]

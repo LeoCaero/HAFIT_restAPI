@@ -93,21 +93,27 @@ router.post("/add", async (req, res) => {
 });
 
 
-
 /**
  * @swagger
- * /api/user/email:
+ * /api/user/searchBy:
  *   get:
  *     summary: Get user by email
  *     tags: [Users]
  *     description: Get a user by their email address
  *     parameters:
  *       - in: query
- *         name: email
+ *         name: searchBy
+ *         schema:
+ *           type: string
+ *           enum: [ "name", "email", "_id"]
+ *         description: "Search user by"
+ *         required: true
+ *       - in: query
+ *         name: data
  *         schema:
  *           type: string
  *         required: true
- *         description: The email address of the user to retrieve
+ *         description: The data of the user to retrieve       
  *     responses:
  *       200:
  *         description: A user object
@@ -120,16 +126,19 @@ router.post("/add", async (req, res) => {
  *       500:
  *         description: Internal server error
  */
-router.get("/email", async (req, res) => {
-  const email = req.params.email;
+router.get("/searchBy", async (req, res) => {
+  const data = req.query.data;
+  const searchBy = req.query.searchBy;
+  const query = {};
+  query[searchBy] = data;
 
   try {
-    const user = await User.findOne({ email: email });
+    const user = await User.findOne(query);
     if (user) {
       res.json(user);
     } else {
       res.status(404).json({
-        message: errors.notFound.email,
+        message: errors.notFound[searchBy.charAt(0) + searchBy.slice(1)],
       });
     }
   } catch (error) {
