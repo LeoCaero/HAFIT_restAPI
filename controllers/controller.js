@@ -42,12 +42,12 @@ module.exports = {
       let result = await model.findOneAndDelete(query);
       let modelName = model.modelName.charAt(0).toLowerCase() + model.modelName.slice(1);
       if (!result) {
-        res.status(404).send(`No se encontró ${modelName} con ${deleteBy} ${data}`);
+        res.status(404).send(`No se encontró ${modelName.toUpperCase()} con "${deleteBy}" ${data}`);
       } else {
-        res.status(200).send(`El ${modelName} ${result.name} ha sido eliminado`);
+        res.status(200).send(`El ${modelName.toUpperCase()} "${result.name}" ha sido eliminado`);
       }
     } catch (err) {
-      res.status(500).send(`Error al eliminar el ${modelName}: ${err.message}`);
+      res.status(500).send(`Error al eliminar el ${modelName.toUpperCase()}: ${err.message}`);
     }
   }
 };

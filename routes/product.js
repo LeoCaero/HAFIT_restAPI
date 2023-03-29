@@ -1,6 +1,6 @@
 const express = require("express");
 const Product = require("../models/product");
-const { searchBy } = require("../controllers/controller");
+const { searchBy, deleteBy } = require("../controllers/controller");
 
 const fs = require("fs"); // TO DO
 
@@ -76,7 +76,7 @@ router.get("/all", async (req, res) => {
  *         schema:
  *           type: integer
  *           default: 0
- *       - in: query
+ *       - in: formData
  *         name: image
  *         required: false
  *         schema:
@@ -98,10 +98,10 @@ router.get("/all", async (req, res) => {
  *       - BearerAuth: []
  */
 router.post("/add", async (req, res) => {
-  try {
-    const { name, price, description, type, stock, image} = req.query;
-    console.log(image);
-    const imageBuffer = fs.readFileSync(req.file);
+  try { 
+    const { name, price, description, type, stock} = req.query;
+    console.log(req.files.image);
+    const imageBuffer = fs.readFileSync(req.files.image.data);
     const base64Image = imageBuffer.toString("base64");
 
     const product = new Product({
@@ -166,4 +166,42 @@ router.post("/bulk", async (req, res) => {
  */
 router.get("/search", async (req, res) => {
   await searchBy(Product, req, res);
+});
+
+
+/**
+ * @swagger
+ * /api/product/delete:
+ *   delete:
+ *     summary: Delete product by X
+ *     tags: [Products]
+ *     description: Delete a product by the selected option
+ *     parameters:
+ *       - in: query
+ *         name: deleteBy
+ *         schema:
+ *           type: string
+ *           enum: ["_id", "productId","name", "type", "stock"]
+ *         description: "Delete product by"
+ *         required: true
+ *       - in: query
+ *         name: data
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The data of the product to delete
+ *     responses:
+ *       200:
+ *         description: Product deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Product'
+ *       404:
+ *         description: Product not found
+ *       500:
+ *         description: Internal server error
+ */
+router.delete("/delete", async (req, res) => {
+  await deleteBy(Product, req, res);
 });

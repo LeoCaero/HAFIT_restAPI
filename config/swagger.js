@@ -68,7 +68,7 @@ const options = {
               example: 100,
             },
             image: {
-              type: 'string',
+              type: 'file',
               description: 'The URL of the product image',
               example: 'data:image/png;base64,iV...',
             },
