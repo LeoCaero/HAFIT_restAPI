@@ -8,6 +8,10 @@ const errorMessages = {
       name: "No user found with the specified name",
       _id: "NO user found with the specified id",
     },
+    plan: {
+      name: "No user found with the specified name",
+      number: "NO user found with the specified number",
+    },
     missing: "Missing search criteria.",
   },
 };
