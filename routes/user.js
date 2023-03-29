@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const User = require("../models/user");
 const errors = require("../utils/errorMessages");
+const { searchBy, deleteBy } = require("../controllers/controller");
 
 module.exports = router;
 
@@ -55,7 +56,9 @@ router.get("/all", async (req, res) => {
  *         name: type
  *         schema:
  *           type: string
+ *           enum: [ "admin", "client", "soci", "trabajador"]
  *         description: User type
+ *         required: true
  *     responses:
  *       201:
  *         description: Created
@@ -94,14 +97,14 @@ router.post("/add", async (req, res) => {
 
 /**
  * @swagger
- * /api/user/searchBy:
+ * /api/user/search:
  *   get:
- *     summary: Get user by email
+ *     summary: Get user by X
  *     tags: [Users]
- *     description: Get a user by their email address
+ *     description: Get a user by the selected option
  *     parameters:
  *       - in: query
- *         name: searchBy
+ *         name: search
  *         schema:
  *           type: string
  *           enum: [ "name", "email", "_id"]
@@ -125,32 +128,43 @@ router.post("/add", async (req, res) => {
  *       500:
  *         description: Internal server error
  */
-router.get("/searchBy", async (req, res) => {
-  var data = req.query.data;
-  var searchBy = req.query.searchBy;
-  const query = {};
+router.get("/search", async (req, res) => {
+  await searchBy(User, req, res);
+});
 
-  if (!searchBy || !data) {
-    if (req.body && Object.keys(req.body).length) {
-      searchBy = req.body.searchBy;
-      data = req.body.data;
-    } else {
-      return res.status(400).json({ message: errors.notFound.missing });
-    }
-  }
-
-  query[searchBy] = data;
-
-  try {
-    const user = await User.findOne(query);
-    if (user) {
-      res.json(user);
-    } else {
-      res.status(404).json({
-        message: errors.notFound[searchBy.charAt(0) + searchBy.slice(1)],
-      });
-    }
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+/**
+ * @swagger
+ * /api/user/delete:
+ *   delete:
+ *     summary: Delete user by X
+ *     tags: [Users]
+ *     description: Delete a user by the selected option
+ *     parameters:
+ *       - in: query
+ *         name: deleteBy
+ *         schema:
+ *           type: string
+ *           enum: ["name", "email", "_id"]
+ *         description: "Delete user by"
+ *         required: true
+ *       - in: query
+ *         name: data
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The data of the user to delete
+ *     responses:
+ *       200:
+ *         description: User deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Internal server error
+ */
+router.delete("/delete", async (req, res) => {
+  await deleteBy(User, req, res);
 });

@@ -4,12 +4,15 @@ const errorMessages = {
   invalidRequest: "La solicitud que has enviado no es válida. Por favor, comprueba los datos e inténtalo de nuevo.",
   notFound: {
     user: {
-      email: "NO user found with the specified email",
+      email: `NO user found with the specified email`,
       name: "No user found with the specified name",
       _id: "NO user found with the specified id",
     },
     missing: "Missing search criteria.",
   },
+  delete: {
+    user: "The user has been deleted succesfully.",
+  }
 };
 
 module.exports = errorMessages;
