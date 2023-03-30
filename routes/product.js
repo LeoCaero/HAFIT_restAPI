@@ -4,6 +4,9 @@ const { searchBy, deleteBy } = require("../controllers/controller");
 
 const fs = require("fs"); // TO DO
 
+const multer = require("multer");
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 
 const router = express.Router();
 
@@ -38,16 +41,18 @@ router.get("/all", async (req, res) => {
   }
 });
 
-
 /**
  * @swagger
  * /api/product/add:
  *   post:
- *     summary: Create a new product
- *     consumes:
- *       - multipart/form-data
+ *     summary: Create a new product ONLY FROM BODY
  *     tags: [Products]
  *     parameters:
+ *       - in: query
+ *         name: productId
+ *         required: true
+ *         schema:
+ *           type: number
  *       - in: query
  *         name: name
  *         required: true
@@ -63,7 +68,7 @@ router.get("/all", async (req, res) => {
  *         required: false
  *         schema:
  *           type: string
- *           default:  
+ *           default:
  *       - in: query
  *         name: type
  *         required: false
@@ -76,7 +81,7 @@ router.get("/all", async (req, res) => {
  *         schema:
  *           type: integer
  *           default: 0
- *       - in: formData
+ *       - in: query
  *         name: image
  *         required: false
  *         schema:
@@ -94,42 +99,32 @@ router.get("/all", async (req, res) => {
  *           application/json:
  *             example:
  *               message: Error message explaining the issue
- *     security:
- *       - BearerAuth: []
  */
-router.post("/add", async (req, res) => {
-  try { 
-    const { name, price, description, type, stock} = req.query;
-    console.log(req.files.image);
-    const imageBuffer = fs.readFileSync(req.files.image.data);
-    const base64Image = imageBuffer.toString("base64");
+router.post("/add", upload.single("image"), async (req, res) => {
+  try {
+    const { productId, name, price, description, type, stock } = req.body;
 
-    const product = new Product({
+    const image = req.file
+      ? `data:image/jpeg;base64,${req.file.buffer.toString("base64")}`
+      : null;
+
+    const newProduct = new Product({
+      productId,
       name,
       price,
       description,
       type,
       stock,
-      image: base64Image, 
+      image,
     });
 
-    const newProduct = await product.save();
-    res.status(201).json(newProduct);
+    const savedProduct = await newProduct.save();
+
+    res.status(201).json(savedProduct);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
 });
-
-router.post("/bulk", async (req, res) => {
-  try {
-    const products = req.body;
-    const newProducts = await Product.insertMany(products);
-    res.status(201).json(newProducts);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-});
-
 
 /**
  * @swagger
@@ -167,7 +162,6 @@ router.post("/bulk", async (req, res) => {
 router.get("/search", async (req, res) => {
   await searchBy(Product, req, res);
 });
-
 
 /**
  * @swagger

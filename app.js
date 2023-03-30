@@ -29,4 +29,5 @@ connectToDatabase();
 const port = process.env.PORT || 8002;
 app.listen(port, () => {
   console.log(`Server started at http://localhost:${port}`);
+  console.log(`API documentation http://localhost:${port}/api-docs`);
 });
