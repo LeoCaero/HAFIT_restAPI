@@ -1,5 +1,7 @@
 
 const errors = require("../utils/errorMessages");
+const { isAlphabet } = require("../utils/validations");
+
 
 module.exports = {
   searchBy: async function (model, req, res) {
@@ -23,9 +25,11 @@ module.exports = {
       if (result) {
         res.json(result);
       } else {
-        let modelName = model.modelName.charAt(0).toLowerCase() + model.modelName.slice(1);
-        res.status(404).json({          
-          message: errors.notFound[modelName][search.charAt(0) + search.slice(1)],
+        let modelName =
+          model.modelName.charAt(0).toLowerCase() + model.modelName.slice(1);
+        res.status(404).json({
+          message:
+            errors.notFound[modelName][search.charAt(0) + search.slice(1)],
         });
       }
     } catch (error) {
@@ -33,8 +37,10 @@ module.exports = {
     }
   },
   deleteBy: async function(model, req, res) {
+    
     try {
       let { deleteBy, data } = req.query || req.body;
+      
       if (!deleteBy || !data) {
         return res.status(400).json({ message: errors.notFound.missing });
       }
@@ -53,7 +59,25 @@ module.exports = {
   },
   autoincrement: async function (model, fieldName) {
     let result = await model.findOne().sort({[fieldName]:-1});
-    return result ? result.fieldName+1 : 1;
+    return result ? result[fieldName]+1 : 1;
+  },
+  editBy: async function(model, req, res) {
+    try {
+      let modelName = model.modelName.charAt(0).toLowerCase() + model.modelName.slice(1);
+      let modelId = modelName+"Id";
+      let { [modelId]: id, ...updates } = req.query;
+      // if (!isAlphabet(updates[0])) {
+      //   return res.status(501).send(`Debe de contener solo letras. Valor escrito '${name}'`);
+      // }
+      console.log(updates[0])
+      const updatedDoc = await model.findOneAndUpdate({ [modelId]: id }, updates, {
+        new: true,
+        // runValidators: true,
+      });
+      res.status(200).json(updatedDoc);
+    } catch (error) {
+      res.status(400).json({ message: error.message });
+    }
   }
 
 };

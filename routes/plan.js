@@ -1,8 +1,9 @@
 const express = require("express");
 const router = express.Router();
-const {Plan,findAndDelete} = require("../models/plan");
+const {Plan} = require("../models/plan");
 const errors = require("../utils/errorMessages");
-const {searchBy,deleteBy,autoincrement} = require ('../controllers/controller');
+const {searchBy,deleteBy,autoincrement,editBy} = require ('../controllers/controller');
+const {isAlphabet} = require ('../utils/validations');
 
 
 module.exports = router;
@@ -71,13 +72,15 @@ router.get("/all", async (req, res) => {
  *                   type: string
  *                   description: Error message
  */
-router.post("/add", async (req, res) => {
+router.post("/add",async (req, res) => {
   try {
     let { name, planId, description } = req.query;
-    // let lastPlan = await Plan.findOne().sort({planId:-1});
-    // planId = lastPlan ? lastPlan.planId+1 : 1;
-    planId = parseInt(await autoincrement(Plan,'planId'));
-    console.log(planId)
+
+    if (!isAlphabet(name)) {
+      return res.status(501).send(`Debe de contener solo letras. Valor escrito '${name}'`);
+    }
+    console.log(name)
+    planId = await autoincrement(Plan,'planId');
 
     let newPlan = new Plan({
       name,
@@ -86,10 +89,10 @@ router.post("/add", async (req, res) => {
     });
 
     const savedPlan = await newPlan.save();
-    res.status(201).json(savedPlan);
+    res.status(201).send(`El plan ${newPlan.name} con id ${newPlan.planId} se añadido correctamente`);
 
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(500).json({message: error.message});
 
   }
 });
@@ -129,23 +132,7 @@ router.post("/add", async (req, res) => {
  *         description: Internal server error
  */
 router.get("/searchBy", async (req, res) => {
-  const data = req.query.data;
-  const searchBy = req.query.searchBy;
-  const query = {};
-  query[searchBy] = data;
-
-  try {
-    const plan = await Plan.findOne(query);
-    if (plan) {
-      res.json(plan);
-    } else {
-      res.status(404).json({
-        message: errors.notFound[searchBy.charAt(0) + searchBy.slice(1)],
-      });
-    }
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+  await searchBy(Plan,req,res)
 });
 
 /**
@@ -184,7 +171,41 @@ router.get("/searchBy", async (req, res) => {
 router.delete("/delete", async (req, res) => {
   await deleteBy(Plan, req, res);
 });
-
+/**
+ * @swagger
+ * /api/plan/edit:
+ *   put:
+ *     summary: Edit plan
+ *     tags: [Plans]
+ *     description: Edit a plan
+ *     parameters:
+ *       - in: query
+ *         name: name
+ *         schema:
+ *           type: string
+ *         description: "Name of the product"
+ *       - in: query
+ *         name: planId
+ *         schema:
+ *           type: integer
+ *         description: "The planId of the plan"
+ *       - in: query
+ *         name: description
+ *         schema:
+ *           type: string
+ *         description: "Description of the plan"       
+ *     responses:
+ *       200:
+ *         description: A user object
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Plan'
+ *       404:
+ *         description: Plan not found
+ *       500:
+ *         description: Internal server error
+ */
 router.put('/edit',async (req,res) =>{
-
-});
+    await editBy(Plan,req,res);
+  });
