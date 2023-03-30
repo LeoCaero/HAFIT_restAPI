@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const User = require("../models/user");
 const errors = require("../utils/errorMessages");
-const { searchBy, deleteBy } = require("../controllers/controller");
+const { searchBy, deleteBy, editBy } = require("../controllers/controller");
 
 module.exports = router;
 
@@ -167,4 +167,50 @@ router.get("/search", async (req, res) => {
  */
 router.delete("/delete", async (req, res) => {
   await deleteBy(User, req, res);
+});
+
+/**
+ * @swagger
+ * /api/user/edit:
+ *   put:
+ *     summary: Edit user
+ *     tags: [Users]
+ *     description: Edit a user
+ *     parameters:
+ *       - in: query
+ *         name: userId
+ *         schema:
+ *           type: string
+ *         description: User Id
+ *       - in: query
+ *         name: name
+ *         schema:
+ *           type: string
+ *         description: User name
+ *       - in: query
+ *         name: email
+ *         schema:
+ *           type: string
+ *         description: User email
+ *       - in: query
+ *         name: type
+ *         schema:
+ *           type: string
+ *           enum: [ "admin", "client", "soci", "trabajador"]
+ *         description: User type
+ *         required: true      
+ *     responses:
+ *       200:
+ *         description: A user object
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Plan'
+ *       404:
+ *         description: Plan not found
+ *       500:
+ *         description: Internal server error
+ */
+router.put("/edit", async (req, res) => {
+  await editBy(User, req, res);
 });
