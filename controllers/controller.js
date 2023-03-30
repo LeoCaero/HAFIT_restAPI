@@ -9,6 +9,9 @@ module.exports = {
     let search = req.query.search;
     let query = {};
 
+    if (!isAlphabet(data)) {
+      return res.status(501).send(`Debe de contener solo letras. Valor escrito '${data}'`);
+    }
     if (!search || !data) {
       if (req.body && Object.keys(req.body).length) {
         search = req.body.search;
@@ -40,10 +43,14 @@ module.exports = {
     
     try {
       let { deleteBy, data } = req.query || req.body;
+      if (!isAlphabet(data)) {
+        return res.status(501).send(`Debe de contener solo letras. Valor escrito '${data}'`);
+      }
       
       if (!deleteBy || !data) {
         return res.status(400).json({ message: errors.notFound.missing });
       }
+      
 
       let query = { [deleteBy]: data };
       let result = await model.findOneAndDelete(query);
@@ -66,10 +73,11 @@ module.exports = {
       let modelName = model.modelName.charAt(0).toLowerCase() + model.modelName.slice(1);
       let modelId = modelName+"Id";
       let { [modelId]: id, ...updates } = req.query;
-      // if (!isAlphabet(updates[0])) {
-      //   return res.status(501).send(`Debe de contener solo letras. Valor escrito '${name}'`);
-      // }
-      console.log(updates[0])
+      console.log(updates)
+      if (!isAlphabet(updates.name)) {
+        return res.status(501).send(`Debe de contener solo letras. Valor escrito '${updates.name}'`);
+      }
+
       const updatedDoc = await model.findOneAndUpdate({ [modelId]: id }, updates, {
         new: true,
         // runValidators: true,

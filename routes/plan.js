@@ -107,7 +107,7 @@ router.post("/add",async (req, res) => {
  *     description: Get a plan by everything you want
  *     parameters:
  *       - in: query
- *         name: searchBy
+ *         name: search
  *         schema:
  *           type: string
  *           enum: [ "name", "planId"]
