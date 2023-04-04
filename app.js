@@ -5,6 +5,7 @@ const swaggerConfig = require('./config/swagger');
 const usersRouter = require('./routes/user');
 const productsRouter = require('./routes/product');
 const plansRouter = require('./routes/plan');
+const exercicesRouter = require('./routes/exercice');
 
 const cors = require('cors');
 
@@ -22,7 +23,8 @@ swaggerConfig(app);
 // Routes
 app.use('/api/user', usersRouter);
 app.use('/api/product', productsRouter);
-app.use('/api/plan',plansRouter)
+app.use('/api/plan',plansRouter);
+app.use('/api/exercice',exercicesRouter);
 
 // Database Connection
 connectToDatabase();
@@ -31,4 +33,5 @@ connectToDatabase();
 const port = process.env.PORT || 8002;
 app.listen(port, () => {
   console.log(`Server started at http://localhost:${port}`);
+  console.log(`Api documentation  at http://localhost:${port}/api-docs`);
 });

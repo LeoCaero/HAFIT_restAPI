@@ -3,7 +3,7 @@ const router = express.Router();
 const {Plan} = require("../models/plan");
 const errors = require("../utils/errorMessages");
 const {searchBy,deleteBy,autoincrement,editBy} = require ('../controllers/controller');
-const {isAlphabet} = require ('../utils/validations');
+const {isAlphabet, notEmpty,minAndMaxCharacter} = require ('../utils/validations');
 
 
 module.exports = router;
@@ -75,11 +75,30 @@ router.get("/all", async (req, res) => {
 router.post("/add",async (req, res) => {
   try {
     let { name, planId, description } = req.query;
-
-    if (!isAlphabet(name)) {
-      return res.status(501).send(`Debe de contener solo letras. Valor escrito '${name}'`);
+    if (notEmpty(name)) {   
+      if (isAlphabet(name)) {
+        if (!minAndMaxCharacter(name,2,10)) {
+          return res.status(503).send(`El campo name como minimo debe de contner 2 caracteres y como maximo 10 caracteres`);
+        }
+      }else{
+        return res.status(502).send(`Debe de contener solo letras. Valor escrito '${name}'`);
+      }
+    }else{
+      return res.status(501).send(`El campo name no debe de estar vacio`);
     }
-    console.log(name)
+
+    if (notEmpty(description)) {
+      if (isAlphabet(description)) {
+        if (!minAndMaxCharacter(description,2,10)) {
+          return res.status(503).send(`El campo description como minimo debe de contner 2 caracteres y como maximo 10 caracteres`);
+        }
+      }else{
+        return res.status(502).send(`Debe de contener solo letras. Valor escrito '${description}'`);
+      }
+    }else{
+      return res.status(501).send(`El campo description no debe de estar vacio`);
+    }
+
     planId = await autoincrement(Plan,'planId');
 
     let newPlan = new Plan({

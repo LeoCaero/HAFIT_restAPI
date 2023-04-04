@@ -1,6 +1,5 @@
-
 const errors = require("../utils/errorMessages");
-const { isAlphabet } = require("../utils/validations");
+const { isAlphabet,isNumeric } = require("../utils/validations");
 
 
 module.exports = {
@@ -8,10 +7,28 @@ module.exports = {
     let data = req.query.data;
     let search = req.query.search;
     let query = {};
-
-    if (!isAlphabet(data)) {
-      return res.status(501).send(`Debe de contener solo letras. Valor escrito '${data}'`);
-    }
+    // if (typeof data === 'string') {
+    //   if (notEmpty(data)) {   
+    //     if (isAlphabet(data)) {
+    //       if (!minAndMaxCharacter(data,2,10)) {
+    //         return res.status(503).send(`El campo ${data} como minimo debe de contner 2 caracteres y como maximo 10 caracteres`);
+    //       }
+    //     }else{
+    //       return res.status(502).send(`Debe de contener solo letras. Valor escrito '${data}'`);
+    //     }
+    //   }else{
+    //     return res.status(501).send(`El campo ${data} no debe de estar vacio`);
+    //   }
+    // }else if(typeof data === 'integer'){
+    //   if (notEmpty(data)) {   
+    //    if(!isNumeric(data)){
+    //       return res.status(502).send(`El ${data} debe de ser un número`);
+    //    }
+    //   }else{
+    //   return res.status(501).send(`El campo ${data} no debe de estar vacio`);
+    //  }
+    // }
+ 
     if (!search || !data) {
       if (req.body && Object.keys(req.body).length) {
         search = req.body.search;
@@ -43,8 +60,26 @@ module.exports = {
     
     try {
       let { deleteBy, data } = req.query || req.body;
-      if (!isAlphabet(data)) {
-        return res.status(501).send(`Debe de contener solo letras. Valor escrito '${data}'`);
+      if (typeof data === 'string') {
+        if (notEmpty(data)) {   
+          if (isAlphabet(data)) {
+            if (!minAndMaxCharacter(data,2,10)) {
+              return res.status(503).send(`El campo ${data} como minimo debe de contner 2 caracteres y como maximo 10 caracteres`);
+            }
+          }else{
+            return res.status(502).send(`Debe de contener solo letras. Valor escrito '${data}'`);
+          }
+        }else{
+          return res.status(501).send(`El campo ${data} no debe de estar vacio`);
+        }
+      }else if(typeof data === 'integer'){
+        if (notEmpty(data)) {   
+         if(!isNumeric(data)){
+            return res.status(502).send(`El ${data} debe de ser un número`);
+         }
+        }else{
+        return res.status(501).send(`El campo ${data} no debe de estar vacio`);
+       }
       }
       
       if (!deleteBy || !data) {
@@ -77,7 +112,9 @@ module.exports = {
       if (!isAlphabet(updates.name)) {
         return res.status(501).send(`Debe de contener solo letras. Valor escrito '${updates.name}'`);
       }
-
+      if(!isNumeric(id)){
+        return res.status(502).send(`El ${modelId} debe de ser un número`);
+      }
       const updatedDoc = await model.findOneAndUpdate({ [modelId]: id }, updates, {
         new: true,
         // runValidators: true,
