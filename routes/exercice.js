@@ -120,4 +120,120 @@ router.post('/add',async(req,res)=>{
      } catch (error) {
         res.stauts(500).send(`Error en añadir el ejercico`)
     }
-})
+});
+/**
+ * @swagger
+ * /api/exercice/searchBy:
+ *   get:
+ *     summary: Get exercice by everything you want
+ *     tags: [Exercices]
+ *     description: Get a exercice by everything you want
+ *     parameters:
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *           enum: [ "name", "exerciceId"]
+ *         description: "Search exercice by"
+ *         required: true
+ *       - in: query
+ *         name: data
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The data of the user to retrieve       
+ *     responses:
+ *       200:
+ *         description: A user object
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Exercice'
+ *       404:
+ *         description: Exercice not found
+ *       500:
+ *         description: Internal server error
+ */
+router.get("/searchBy", async (req, res) => {
+    await searchBy(Exercice,req,res)
+  });
+  
+  /**
+   * @swagger
+   * /api/exercice/delete:
+   *   delete:
+   *     summary: Delete exercice by X
+   *     tags: [Exercices]
+   *     description: Delete a exercice by the selected option
+   *     parameters:
+   *       - in: query
+   *         name: deleteBy
+   *         schema:
+   *           type: string
+   *           enum: ["name", "exerciceId"]
+   *         description: "Delete exercice by"
+   *         required: true
+   *       - in: query
+   *         name: data
+   *         schema:
+   *           type: string
+   *         required: true
+   *         description: The data of the exercice to delete
+   *     responses:
+   *       200:
+   *         description: exercice deleted successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/exercice'
+   *       404:
+   *         description: exercice not found
+   *       500:
+   *         description: Internal server error
+   */
+  router.delete("/delete", async (req, res) => {
+    await deleteBy(Exercice, req, res);
+  });
+  /**
+   * @swagger
+   * /api/exercice/edit:
+   *   put:
+   *     summary: Edit exercice
+   *     tags: [Exercices]
+   *     description: Edit a exercice
+   *     parameters:
+   *       - in: query
+   *         name: name
+   *         schema:
+   *           type: string
+   *         description: "Name of the exercice"
+   *       - in: query
+   *         name: exerciceId
+   *         schema:
+   *           type: integer
+   *         description: "The exerciceId of the plan"
+   *       - in: query
+   *         name: description
+   *         schema:
+   *           type: string
+   *         description: "Description of the exercice"     
+   *       - in: query
+   *         name: time
+   *         schema:
+   *           type: string
+   *         description: "Time of the exercice"       
+   *     responses:
+   *       200:
+   *         description: A user object
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/exercice'
+   *       404:
+   *         description: exercice not found
+   *       500:
+   *         description: Internal server error
+   */
+  router.put('/edit',async (req,res) =>{
+      await editBy(Exercice,req,res);
+    });
