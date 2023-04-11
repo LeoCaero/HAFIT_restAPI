@@ -35,6 +35,44 @@ router.get("/all", async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
+/**
+ * @swagger
+ * /api/plan/{planId}:
+ *   get:
+ *     summary: Get a plan by plan ID
+ *     tags: [Plans]
+ *     description: Get a plan by plan ID from the database
+ *     parameters:
+ *       - in: path
+ *         name: planId
+ *         schema:
+ *           type: integer
+ *         description: Plan ID
+ *     responses:
+ *       200:
+ *         description: A plan
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Plan'
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/:planId', async (req, res) => {
+  try {
+    const planIdQuery = parseInt(req.params.planId);
+    if (isNaN(planIdQuery)) {
+      throw new Error('planId debe ser un número entero');
+    }
+    console.log(planIdQuery)
+    const data = await Plan.findOne({planId: planIdQuery});
+    console.log(data);
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 
 /**
  * @swagger
@@ -135,7 +173,7 @@ router.post("/add",async (req, res) => {
  *       - in: query
  *         name: data
  *         schema:
- *           type: string
+ *           type: integer
  *         required: true
  *         description: The data of the user to retrieve       
  *     responses:
