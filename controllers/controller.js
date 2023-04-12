@@ -15,7 +15,7 @@ module.exports = {
         search = req.body.search;
         data = req.body.data;
       } else {
-        return res.status(400).json({ message: errors.notFound.missing });
+        res.status(404).json({ message: errors.notFound.missing });
       }
     }
 
@@ -26,11 +26,9 @@ module.exports = {
       if (result) {
         res.json(result);
       } else {
-        let modelName =
-          model.modelName.charAt(0).toLowerCase() + model.modelName.slice(1);
+        let modelName = model.modelName.charAt(0).toLowerCase() + model.modelName.slice(1);
         res.status(404).json({
-          message:
-            errors.notFound[modelName][search.charAt(0) + search.slice(1)],
+          message: errors.notFound[modelName][search.charAt(0) + search.slice(1)],
         });
       }
     } catch (error) {
@@ -74,7 +72,8 @@ module.exports = {
       let modelName =
         model.modelName.charAt(0).toLowerCase() + model.modelName.slice(1);
       let modelId = modelName + "Id";
-      let { [modelId]: id, ...updates } = req.query;
+      let { [modelId]: id } = req.body || req.query;
+      let updates = req.body || req.query;
       const updatedDoc = await model.findOneAndUpdate(
         { [modelId]: id },
         updates,

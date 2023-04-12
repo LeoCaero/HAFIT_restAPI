@@ -79,7 +79,7 @@ router.get("/all", async (req, res) => {
  */
 router.post("/add", async (req, res) => {
   try {
-    const { name, email, type } = req.query;
+    const { name, email, type } =  req.body;
 
     const newUser = new User({
       name,
@@ -205,9 +205,9 @@ router.delete("/delete", async (req, res) => {
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Plan'
+ *               $ref: '#/components/schemas/User'
  *       404:
- *         description: Plan not found
+ *         description: User not found
  *       500:
  *         description: Internal server error
  */

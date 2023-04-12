@@ -101,6 +101,11 @@ const options = {
               type: 'string',
               description: 'Type of user [client, admin, soci, treballador]',
               example: 'admin',
+            },
+            products: {
+              type: 'array',
+              description: 'Array of products',
+              example: '[]'
             }
           }
         },
