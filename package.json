@@ -26,6 +26,7 @@
   "homepage": "https://github.com/LeoCaero/HAFIT_restAPI#readme",
   "dependencies": {
     "celebrate": "^15.0.1",
+    "cloudinary": "^1.35.0",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",

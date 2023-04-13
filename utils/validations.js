@@ -1,6 +1,6 @@
 module.exports={ 
     isAlphabet: function (element){
-        var alphaExp = /^[a-zA-Z\s]+$/ 
+        var alphaExp = /^[a-zA-Z\s<>\/]+$/ 
         return element.match(alphaExp) ? true : false
     },
     notEmpty: function (element) {

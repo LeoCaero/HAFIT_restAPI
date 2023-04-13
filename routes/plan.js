@@ -35,43 +35,6 @@ router.get("/all", async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
-/**
- * @swagger
- * /api/plan/{planId}:
- *   get:
- *     summary: Get a plan by plan ID
- *     tags: [Plans]
- *     description: Get a plan by plan ID from the database
- *     parameters:
- *       - in: path
- *         name: planId
- *         schema:
- *           type: integer
- *         description: Plan ID
- *     responses:
- *       200:
- *         description: A plan
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Plan'
- *       500:
- *         description: Internal server error
- */
-router.get('/:planId', async (req, res) => {
-  try {
-    const planIdQuery = parseInt(req.params.planId);
-    if (isNaN(planIdQuery)) {
-      throw new Error('planId debe ser un número entero');
-    }
-    console.log(planIdQuery)
-    const data = await Plan.findOne({planId: planIdQuery});
-    console.log(data);
-    res.json(data);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
 
 
 /**
@@ -115,8 +78,8 @@ router.post("/add",async (req, res) => {
     let { name, planId, description } = req.query;
     if (notEmpty(name)) {   
       if (isAlphabet(name)) {
-        if (!minAndMaxCharacter(name,2,10)) {
-          return res.status(503).send(`El campo name como minimo debe de contner 2 caracteres y como maximo 10 caracteres`);
+        if (!minAndMaxCharacter(name,2,200)) {
+          return res.status(503).send(`El campo name como minimo debe de contner 2 caracteres y como maximo 200 caracteres`);
         }
       }else{
         return res.status(502).send(`Debe de contener solo letras. Valor escrito '${name}'`);
@@ -127,8 +90,8 @@ router.post("/add",async (req, res) => {
 
     if (notEmpty(description)) {
       if (isAlphabet(description)) {
-        if (!minAndMaxCharacter(description,2,10)) {
-          return res.status(503).send(`El campo description como minimo debe de contner 2 caracteres y como maximo 10 caracteres`);
+        if (!minAndMaxCharacter(description,2,200)) {
+          return res.status(503).send(`El campo description como minimo debe de contner 2 caracteres y como maximo 200 caracteres`);
         }
       }else{
         return res.status(502).send(`Debe de contener solo letras. Valor escrito '${description}'`);
@@ -157,7 +120,7 @@ router.post("/add",async (req, res) => {
 
 /**
  * @swagger
- * /api/plan/searchBy:
+ * /api/plan/search:
  *   get:
  *     summary: Get plan by everything you want
  *     tags: [Plans]
@@ -188,7 +151,7 @@ router.post("/add",async (req, res) => {
  *       500:
  *         description: Internal server error
  */
-router.get("/searchBy", async (req, res) => {
+router.get("/search", async (req, res) => {
   await searchBy(Plan,req,res)
 });
 
