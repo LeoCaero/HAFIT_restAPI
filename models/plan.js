@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-
+const User = require("./user");
   
 
 const planSchema = new mongoose.Schema({
@@ -15,6 +15,21 @@ const planSchema = new mongoose.Schema({
     type: String,
     default: "",
   },
+  // autorId: {
+  //     type: User.schema,
+  //     ref: "User",
+  //     required: false,
+  //     default:"",
+  // },
+  // user: [
+  //   {
+  //   type: User.schema,
+  //   ref: "User",
+  //   required:false,
+  //   default:"",
+  //   }
+  // ]
+  
 }, { collection: 'Plan' });
 
 

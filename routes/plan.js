@@ -77,31 +77,22 @@ router.post("/add",async (req, res) => {
   try {
     let { name, planId, description } = req.query;
     if (notEmpty(name)) {   
-      if (isAlphabet(name)) {
-        if (!minAndMaxCharacter(name,2,200)) {
-          return res.status(503).send(`El campo name como minimo debe de contner 2 caracteres y como maximo 200 caracteres`);
+        if (!minAndMaxCharacter(name,2,15)) {
+          return res.status(503).send(`El campo "Name" como minimo debe de contner 2 caracteres y como maximo 15 caracteres`);
         }
-      }else{
-        return res.status(502).send(`Debe de contener solo letras. Valor escrito '${name}'`);
-      }
     }else{
-      return res.status(501).send(`El campo name no debe de estar vacio`);
+      return res.status(501).send(`El campo "Name" no debe de estar vacio`);
     }
 
     if (notEmpty(description)) {
-      if (isAlphabet(description)) {
         if (!minAndMaxCharacter(description,2,200)) {
-          return res.status(503).send(`El campo description como minimo debe de contner 2 caracteres y como maximo 200 caracteres`);
+          return res.status(503).send(`El campo "Description" como minimo debe de contner 2 caracteres y como maximo 200 caracteres`);
         }
-      }else{
-        return res.status(502).send(`Debe de contener solo letras. Valor escrito '${description}'`);
-      }
     }else{
-      return res.status(501).send(`El campo description no debe de estar vacio`);
+      return res.status(501).send(`El campo "Description" no debe de estar vacio`);
     }
 
     planId = await autoincrement(Plan,'planId');
-
     let newPlan = new Plan({
       name,
       planId,

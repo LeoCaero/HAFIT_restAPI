@@ -60,7 +60,13 @@ module.exports = {
     let data = req.query.data;
     let search = req.query.search;
     let query = {};
-
+    // if (notEmpty(data)) {   
+    //     if (!minAndMaxCharacter(data,2,10)) {
+    //       return res.status(503).send(`El campo ${data} como minimo debe de contner 2 caracteres y como maximo 10 caracteres`);
+    //     }
+    //  }else{
+    //     return res.status(501).send(`El campo ${data} no debe de estar vacio`);
+    //   }
     if (!search || !data) {
       if (req.body && Object.keys(req.body).length) {
         search = req.body.search;
@@ -86,50 +92,54 @@ module.exports = {
       res.status(500).json({ message: error.message });
     }
   },
-  deleteBy: async function(model, req, res) {
-    
+  deleteBy: async function (model, req, res) {
+    let modelName;
     try {
-      let data = req.body.data || req.query.data;
-      let deleteBy = req.body.deleteBy || req.query.deleteBy;
-      console.log('Delete '+ deleteBy+' Data '+data)
-    
-        // if (typeof data === 'string') {
-        //   if (notEmpty(data)) {   
-        //     if (isAlphabet(data)) {
-        //       if (!minAndMaxCharacter(data,2,10)) {
-        //         return res.status(503).send(`El campo ${data} como minimo debe de contner 2 caracteres y como maximo 10 caracteres`);
-        //       }
-        //     }else{
-        //       return res.status(502).send(`Debe de contener solo letras. Valor escrito '${data}'`);
-        //     }
-        //   }else{
-        //     return res.status(501).send(`El campo ${data} no debe de estar vacio`);
-        //   }
-        // }else if(typeof data === 'integer'){
-        //   if (notEmpty(data)) {   
-        //   if(!isNumeric(data)){
-        //       return res.status(502).send(`El ${data} debe de ser un número`);
-        //   }
-        //   }else{
-        //   return res.status(501).send(`El campo ${data} no debe de estar vacio`);
-        // }
-        // }
-        
-      if (!deleteBy || !data) {
-        return res.status(400).json({ message: errors.notFound.missing + deleteBy});
-      }
-      
+      // let deleteBy = req.query.deleteBy || req.body.deleteBy;
+      // let data = req.query.data || req.body.data;
+      // // let { deleteBy, data } = req.query || req.body;
+      // if (!deleteBy || !data) {
+      //   return res.status(400).json({ message: errors.notFound.missing + deleteBy + data });
+      // }
 
-      let query = { [deleteBy]: data };
+      // let query = { [deleteBy]: data };
+
+      let data = req.query.data;
+      let deleteBy = req.query.deleteBy;
+      let query = {};
+
+      if (!deleteBy || !data) {
+        if (req.body && Object.keys(req.body).length) {
+          deleteBy = req.body.deleteBy;
+          data = new RegExp(["^", req.body.data, "$"].join(""), "i");
+        } else {
+          res.status(404).json({ message: errors.notFound.missing });
+        }
+      }
+
+      query[deleteBy] = data;
+
       let result = await model.findOneAndDelete(query);
-      let modelName = model.modelName.charAt(0).toLowerCase() + model.modelName.slice(1);
+       modelName =
+        model.modelName.charAt(0).toLowerCase() + model.modelName.slice(1);
       if (!result) {
-        res.status(404).send(`No se encontró ${modelName} con ${deleteBy} ${data}`);
+        res
+          .status(404)
+          .send(
+            `No se encontró ${modelName.toUpperCase()} con "${deleteBy}" ${data}`
+          );
       } else {
-        res.status(200).send(`El ${modelName} ${result.name} ha sido eliminado`);
+        res
+          .status(200)
+          .send(
+            `El ${modelName.toUpperCase()} "${result.name}" ha sido eliminado`
+          );
       }
     } catch (err) {
-      res.status(500).send(`Error al eliminar el ${modelName}: ${err.message}`);
+      res
+        .send(
+          `Error al eliminar el ${modelName}: ${err.message}`
+        );
     }
   },
   autoincrement: async function (model, fieldName) {
@@ -142,9 +152,20 @@ module.exports = {
       let modelId = modelName+"Id";
       let { [modelId]: id, ...updates } = req.query;
       console.log(updates)
-      if (!isAlphabet(updates.name)) {
-        return res.status(501).send(`Debe de contener solo letras. Valor escrito '${updates.name}'`);
+      if (notEmpty(updates.name)) {   
+        if (!minAndMaxCharacter(updates.name,2,15)) {
+          return res.status(503).send(`El campo "Name" como minimo debe de contner 2 caracteres y como maximo 15 caracteres`);
+        }
+    }else{
+      return res.status(501).send(`El campo "Name" no debe de estar vacio`);
+    }
+    if (notEmpty(updates.description)) {
+      if (!minAndMaxCharacter(updates.description,2,200)) {
+        return res.status(503).send(`El campo "Description" como minimo debe de contner 2 caracteres y como maximo 200 caracteres`);
       }
+  }else{
+    return res.status(501).send(`El campo "Description" no debe de estar vacio`);
+  }
       if(!isNumeric(id)){
         return res.status(502).send(`El ${modelId} debe de ser un número`);
       }

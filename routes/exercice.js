@@ -123,7 +123,7 @@ router.post('/add',async(req,res)=>{
 });
 /**
  * @swagger
- * /api/exercice/searchBy:
+ * /api/exercice/search:
  *   get:
  *     summary: Get exercice by everything you want
  *     tags: [Exercices]
@@ -154,7 +154,7 @@ router.post('/add',async(req,res)=>{
  *       500:
  *         description: Internal server error
  */
-router.get("/searchBy", async (req, res) => {
+router.get("/search", async (req, res) => {
     await searchBy(Exercice,req,res)
   });
   
