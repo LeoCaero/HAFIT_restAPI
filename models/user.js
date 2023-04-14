@@ -32,6 +32,13 @@ const userSchema = new Schema(
         required: false,
       },
     ],
+    cartItems: [
+      {
+        type: Product.schema,
+        ref: "Product",
+        required: false,
+      }
+    ]
   },
   { collection: "User" }
 );
@@ -57,4 +64,8 @@ userSchema.pre("save", function (next) {
 
 const User = mongoose.model("User", userSchema);
 
+
+
 module.exports = User;
+
+

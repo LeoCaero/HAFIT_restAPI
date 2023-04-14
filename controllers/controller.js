@@ -26,9 +26,11 @@ module.exports = {
       if (result) {
         res.json(result);
       } else {
-        let modelName = model.modelName.charAt(0).toLowerCase() + model.modelName.slice(1);
+        let modelName =
+          model.modelName.charAt(0).toLowerCase() + model.modelName.slice(1);
         res.status(404).json({
-          message: errors.notFound[modelName][search.charAt(0) + search.slice(1)],
+          message:
+            errors.notFound[modelName][search.charAt(0) + search.slice(1)],
         });
       }
     } catch (error) {
@@ -37,14 +39,29 @@ module.exports = {
   },
   deleteBy: async function (model, req, res) {
     try {
-      let deleteBy = req.query.deleteBy || req.body.deleteBy;
-      let data = req.query.data || req.body.data;
-      // let { deleteBy, data } = req.query || req.body;
+      // let deleteBy = req.query.deleteBy || req.body.deleteBy;
+      // let data = req.query.data || req.body.data;
+      // // let { deleteBy, data } = req.query || req.body;
+      // if (!deleteBy || !data) {
+      //   return res.status(400).json({ message: errors.notFound.missing + deleteBy + data });
+      // }
+
+      // let query = { [deleteBy]: data };
+
+      let data = req.query.data;
+      let deleteBy = req.query.deleteBy;
+      let query = {};
+
       if (!deleteBy || !data) {
-        return res.status(400).json({ message: errors.notFound.missing + deleteBy + data });
+        if (req.body && Object.keys(req.body).length) {
+          deleteBy = req.body.deleteBy;
+          data = new RegExp(["^", req.body.data, "$"].join(""), "i");
+        } else {
+          res.status(404).json({ message: errors.notFound.missing });
+        }
       }
 
-      let query = { [deleteBy]: data };
+      query[search] = data;
 
       let result = await model.findOneAndDelete(query);
       let modelName =
