@@ -3,6 +3,7 @@ const router = express.Router();
 const User = require("../models/user");
 const errors = require("../utils/errorMessages");
 const { searchBy, deleteBy, editBy } = require("../controllers/controller");
+const Product = require("../models/product");
 
 module.exports = router;
 
@@ -221,16 +222,22 @@ router.put("/cart", async (req, res) => {
 
     let updatedUser;
 
+    const product = await Product.findOne({ productId: productId });
+    
+    if (!product) {
+      throw new Error("Producto no encontrado");
+    }
+
     if (action === "add") {
-      updatedUser = await User.findByIdAndUpdate(
-        userId,
-        { $push: { cartItems: productId } },
+      updatedUser = await User.findOneAndUpdate(
+        { userId: userId },
+        { $push: { cartItems: product } },
         { new: true }
       );
     } else if (action === "remove") {
-      updatedUser = await User.findByIdAndUpdate(
-        userId,
-        { $pull: { cartItems: productId } },
+      updatedUser = await User.findOneAndUpdate(
+        { userId: userId },
+        { $pull: { cartItems: product } },
         { new: true }
       );
     } else {
@@ -242,3 +249,4 @@ router.put("/cart", async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 });
+
