@@ -15,6 +15,10 @@ const planSchema = new mongoose.Schema({
     type: String,
     default: "",
   },
+  featuredImg:{
+    type:String,
+    default: ''
+  }
   // autorId: {
   //     type: User.schema,
   //     ref: "User",

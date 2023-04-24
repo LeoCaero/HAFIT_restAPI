@@ -121,6 +121,10 @@ const options = {
               type: 'string',
               description: 'Description of the plan',
               example: 'To do plan 1 you need to go outside',
+            },
+            featuredImg: {
+              type: 'string',
+              description: 'Featured image from plan'
             }
           }
         },

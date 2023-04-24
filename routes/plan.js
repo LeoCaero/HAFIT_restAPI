@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const {Plan} = require("../models/plan");
 const errors = require("../utils/errorMessages");
-const {searchBy,deleteBy,autoincrement,editBy} = require ('../controllers/controller');
+const {searchBy,deleteBy,autoincrement,editBy, uploadImage} = require ('../controllers/controller');
 const {isAlphabet, notEmpty,minAndMaxCharacter} = require ('../utils/validations');
 
 
@@ -55,6 +55,11 @@ router.get("/all", async (req, res) => {
  *         schema:
  *           type: string
  *         description: Plan description
+ *       - in: query
+ *         name: featuredImg
+ *         schema:
+ *           type: string
+ *         description: Plan featuredImg
  *     responses:
  *       201:
  *         description: Created
@@ -75,7 +80,7 @@ router.get("/all", async (req, res) => {
  */
 router.post("/add",async (req, res) => {
   try {
-    let { name, planId, description } = req.query;
+    let { name, planId, description,featuredImg } = req.query;
     if (notEmpty(name)) {   
         if (!minAndMaxCharacter(name,2,15)) {
           return res.status(503).send(`El campo "Name" como minimo debe de contner 2 caracteres y como maximo 15 caracteres`);
@@ -97,6 +102,7 @@ router.post("/add",async (req, res) => {
       name,
       planId,
       description,
+      featuredImg
     });
 
     const savedPlan = await newPlan.save();
@@ -220,3 +226,79 @@ router.delete("/delete", async (req, res) => {
 router.put('/edit',async (req,res) =>{
     await editBy(Plan,req,res);
   });
+/**
+ * @swagger
+ * /api/plan/filter:
+ *   get:
+ *     summary: Filter plan
+ *     tags: [Plans]
+ *     description: Filter  plan
+ *     parameters:
+ *       - in: query
+ *         name: filterBy
+ *         schema:
+ *            type: string
+ *            enum: ["name", "planId","description"]
+ *         description: "Name of the product"
+ *       - in: query
+ *         name: filter
+ *         schema:
+ *           type: string
+ *         description: "The planId of the plan"    
+ *     responses:
+ *       200:
+ *         description: A user object
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Plan'
+ *       404:
+ *         description: Plan not found
+ *       500:
+ *         description: Internal server error
+ */
+  router.get('/filter',async(req,res)=>{
+    try {
+      let filterBy = req.query.filterBy || req.body.filterBy;
+      let filter = req.query.filter || req.body.filter;
+      console.log(filterBy)
+      console.log(filter)
+      const data = await Plan.find({[filterBy]: { $regex: new RegExp(filter, 'i') } });
+      console.log(data)
+      res.json(data)
+    } catch (error) {
+      res.send(`Error ${error.message}`)
+    }
+  })
+/**
+ * @swagger
+ * /api/plan/uploadImages:
+ *   post:
+ *     summary: Upload images plan
+ *     tags: [Plans]
+ *     description: Upload images  plan
+ *     consumes:
+ *       - "multipart/form-data"
+ *     produces:
+ *       - "application/json"
+ *     parameters:
+ *       - in: formData
+ *         name: file
+ *         type: file
+ *         description: "Archivo de imagen para subir"
+ *         required: false
+ *     responses:
+ *       200:
+ *         description: A user object
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Plan'
+ *       404:
+ *         description: Plan not found
+ *       500:
+ *         description: Internal server error
+ */
+  router.post('/uploadImages',async(req,res)=>{
+    await uploadImage(req,res);
+  })

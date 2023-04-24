@@ -1,5 +1,6 @@
 const errors = require("../utils/errorMessages");
 const { isAlphabet,isNumeric,notEmpty,minAndMaxCharacter } = require("../utils/validations");
+const cloudinary = require('cloudinary').v2;
 
 
 module.exports = {
@@ -177,6 +178,44 @@ module.exports = {
     } catch (error) {
       res.status(400).json({ message: error.message });
     }
-  }
+  },
+  filter: async function (filterBy,model,req,res){
+      try {
+        db.model.find({})
+      } catch (error) {
+        res.send(`Error ${error.message}`)
+      }
+  },
+  uploadImage: async function (req, res) {
+    try {
+        // CONFIGURATION 
+        cloudinary.config({
+            cloud_name: "dlomgjt1k",
+            api_key: "447613727928719",
+            api_secret: "ZrUxDk1iFEw57psqVsHVCLgjFMQ"
+        });
+
+        console.log(req.body)
+        let image = req.body;
+        console.log(image)
+        // UPLOAD
+        const result = await cloudinary.uploader.upload('https://upload.wikimedia.org/wikipedia/commons/a/ae/Olympic_flag.jpg', { public_id: "plans/test" });
+        console.log(result.secure_url);
+        console.log(result.url)
+
+        // GENERATE 
+        const url = cloudinary.url("plans/plan_desc_image", {
+            width: 100,
+            height: 150,
+            crop: 'scale'
+        });
+
+        // THE OUTPUT URL
+        console.log(url);
+
+    } catch (error) {
+        res.send(`Error ${error.errorMessage}`)
+    }
+}
 
 };
