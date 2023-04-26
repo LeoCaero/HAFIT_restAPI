@@ -3,6 +3,7 @@ const router = express.Router();
 const User = require("../models/user");
 const errors = require("../utils/errorMessages");
 const { searchBy, deleteBy, editBy } = require("../controllers/controller");
+const Product = require("../models/product");
 
 module.exports = router;
 
@@ -79,7 +80,7 @@ router.get("/all", async (req, res) => {
  */
 router.post("/add", async (req, res) => {
   try {
-    const { name, email, type } = req.query;
+    const { name, email, type } = req.body;
 
     const newUser = new User({
       name,
@@ -198,19 +199,67 @@ router.delete("/delete", async (req, res) => {
  *           type: string
  *           enum: [ "admin", "client", "soci", "trabajador"]
  *         description: User type
- *         required: true      
+ *         required: true
  *     responses:
  *       200:
  *         description: A user object
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Plan'
+ *               $ref: '#/components/schemas/User'
  *       404:
- *         description: Plan not found
+ *         description: User not found
  *       500:
  *         description: Internal server error
  */
 router.put("/edit", async (req, res) => {
   await editBy(User, req, res);
 });
+
+router.put("/cart", async (req, res) => {
+  try {
+    const { userId, productId, action, quantity } = req.body;
+
+    let updatedUser;
+
+    const product = await Product.findById(productId);
+
+    if (!product) {
+      throw new Error("Producto no encontrado");
+    }
+
+    const user = await User.findById(userId);
+
+    const itemIndex = user.cartItems.findIndex(
+      (item) => item.productId === productId
+    );
+
+    if (action === "add") {
+      if (itemIndex >= 0) {
+        user.cartItems[itemIndex].quantity += quantity;
+        updatedUser = await user.save();
+      } else {
+        const cartItem = { ...product.toObject(), quantity: 1 };
+        updatedUser = await User.findByIdAndUpdate(
+          userId,
+          { $push: { cartItems: cartItem } },
+          { new: true }
+        );
+      }
+    } else if (action === "remove") {
+      if (itemIndex >= 0) {
+        user.cartItems[itemIndex].quantity -= 1;
+        updatedUser = await user.save();
+      } else {
+        throw new Error("El producto no está en el carrito");
+      }
+    } else {
+      throw new Error("Acción no válida");
+    }
+
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+

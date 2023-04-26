@@ -13,9 +13,9 @@ module.exports = {
     if (!search || !data) {
       if (req.body && Object.keys(req.body).length) {
         search = req.body.search;
-        data = req.body.data;
+        data = new RegExp(["^", req.body.data, "$"].join(""), "i");
       } else {
-        return res.status(400).json({ message: errors.notFound.missing });
+        res.status(404).json({ message: errors.notFound.missing });
       }
     }
 
@@ -39,12 +39,21 @@ module.exports = {
   },
   deleteBy: async function (model, req, res) {
     try {
-      let { deleteBy, data } = req.query || req.body;
+      let data = req.query.data;
+      let deleteBy = req.query.deleteBy;
+      let query = {};
+
       if (!deleteBy || !data) {
-        return res.status(400).json({ message: errors.notFound.missing });
+        if (req.body && Object.keys(req.body).length) {
+          deleteBy = req.body.deleteBy;
+          data = new RegExp(["^", req.body.data, "$"].join(""), "i");
+        } else {
+          res.status(404).json({ message: errors.notFound.missing });
+        }
       }
 
-      let query = { [deleteBy]: data };
+      query[search] = data;
+
       let result = await model.findOneAndDelete(query);
       let modelName =
         model.modelName.charAt(0).toLowerCase() + model.modelName.slice(1);
@@ -74,7 +83,8 @@ module.exports = {
       let modelName =
         model.modelName.charAt(0).toLowerCase() + model.modelName.slice(1);
       let modelId = modelName + "Id";
-      let { [modelId]: id, ...updates } = req.query;
+      let { [modelId]: id } = req.body || req.query;
+      let updates = req.body || req.query;
       const updatedDoc = await model.findOneAndUpdate(
         { [modelId]: id },
         updates,
