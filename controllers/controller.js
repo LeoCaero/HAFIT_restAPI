@@ -39,15 +39,6 @@ module.exports = {
   },
   deleteBy: async function (model, req, res) {
     try {
-      // let deleteBy = req.query.deleteBy || req.body.deleteBy;
-      // let data = req.query.data || req.body.data;
-      // // let { deleteBy, data } = req.query || req.body;
-      // if (!deleteBy || !data) {
-      //   return res.status(400).json({ message: errors.notFound.missing + deleteBy + data });
-      // }
-
-      // let query = { [deleteBy]: data };
-
       let data = req.query.data;
       let deleteBy = req.query.deleteBy;
       let query = {};

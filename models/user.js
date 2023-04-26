@@ -37,6 +37,7 @@ const userSchema = new Schema(
         type: Product.schema,
         ref: "Product",
         required: false,
+        unique: true
       }
     ]
   },

@@ -218,28 +218,41 @@ router.put("/edit", async (req, res) => {
 
 router.put("/cart", async (req, res) => {
   try {
-    const { userId, productId, action } = req.body;
+    const { userId, productId, action, quantity } = req.body;
 
     let updatedUser;
 
-    const product = await Product.findOne({ productId: productId });
-    
+    const product = await Product.findById(productId);
+
     if (!product) {
       throw new Error("Producto no encontrado");
     }
 
+    const user = await User.findById(userId);
+
+    const itemIndex = user.cartItems.findIndex(
+      (item) => item.productId === productId
+    );
+
     if (action === "add") {
-      updatedUser = await User.findOneAndUpdate(
-        { userId: userId },
-        { $push: { cartItems: product } },
-        { new: true }
-      );
+      if (itemIndex >= 0) {
+        user.cartItems[itemIndex].quantity += quantity;
+        updatedUser = await user.save();
+      } else {
+        const cartItem = { ...product.toObject(), quantity: 1 };
+        updatedUser = await User.findByIdAndUpdate(
+          userId,
+          { $push: { cartItems: cartItem } },
+          { new: true }
+        );
+      }
     } else if (action === "remove") {
-      updatedUser = await User.findOneAndUpdate(
-        { userId: userId },
-        { $pull: { cartItems: product } },
-        { new: true }
-      );
+      if (itemIndex >= 0) {
+        user.cartItems[itemIndex].quantity -= 1;
+        updatedUser = await user.save();
+      } else {
+        throw new Error("El producto no está en el carrito");
+      }
     } else {
       throw new Error("Acción no válida");
     }

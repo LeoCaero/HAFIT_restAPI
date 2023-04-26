@@ -1,24 +1,34 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
+const defaultValues = require("../utils/defaultValues");
 
-const ProductSchema = new mongoose.Schema({
-  productId: Number,
-  name: String,
-  price: {
-    type: mongoose.Decimal128
+const ProductSchema = new mongoose.Schema(
+  {
+    productId: Number,
+    name: String,
+    price: {
+      type: mongoose.Decimal128,
+    },
+    description: String,
+    type: String,
+    stock: Number,
+    image: {
+      type: String,
+      default: defaultValues.product.image
+    },
+    quantity: {
+      type: Number,
+      default: 1
+    }
   },
-  description: String,
-  type: String,
-  stock: Number,
-  image: String,
-}, {collection: 'Product'});
+  { collection: "Product", versionKey: false }
+);
 
-ProductSchema.methods.toJSON = function() {
-  const product = this.toObject();
-  delete product.__v;
-  return product;
+ProductSchema.methods.toJSON = function () {
+  return { ...this.toObject(), id: this._id };
 };
 
-const Product = mongoose.model('Product', ProductSchema);
 
+
+const Product = mongoose.model("Product", ProductSchema);
 
 module.exports = Product;

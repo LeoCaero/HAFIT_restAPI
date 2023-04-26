@@ -12,5 +12,15 @@ async function connectToDatabase() {
   }
 }
 
+// const Product = require('../models/product');
+
+// Product.updateMany({image: {$exists: false}}, {image: "https://res.cloudinary.com/dbml6cgrf/image/upload/v1682532766/HAFIT/Shared/default_quykfo.png"})
+//   .then((result) => {
+//     console.log(result);
+//   })
+//   .catch((err) => {
+//     console.error(err);
+//   });
+
 module.exports = connectToDatabase;
 
