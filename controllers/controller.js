@@ -181,7 +181,8 @@ module.exports = {
   },
   filter: async function (filterBy,model,req,res){
       try {
-        db.model.find({})
+        let filter = req.query.filter || req.body.filter
+        db.model.find({[filterBy]: { $regex: new RegExp(filter, 'i')}})
       } catch (error) {
         res.send(`Error ${error.message}`)
       }
@@ -190,29 +191,37 @@ module.exports = {
     try {
         // CONFIGURATION 
         cloudinary.config({
-            cloud_name: "dlomgjt1k",
-            api_key: "447613727928719",
-            api_secret: "ZrUxDk1iFEw57psqVsHVCLgjFMQ"
+          cloud_name: "dlomgjt1k",
+          api_key: "447613727928719",
+          api_secret: "ZrUxDk1iFEw57psqVsHVCLgjFMQ"
         });
 
-        console.log(req.body)
-        let image = req.body;
-        console.log(image)
+        console.log('Featured Image: ',req.query.featuredImg)
+        let image = req.body ;
         // UPLOAD
-        const result = await cloudinary.uploader.upload('https://upload.wikimedia.org/wikipedia/commons/a/ae/Olympic_flag.jpg', { public_id: "plans/test" });
-        console.log(result.secure_url);
-        console.log(result.url)
+        let dateOb = new Date();
+        let date = ("0" + dateOb.getDate()).slice(-2);
+        let month = ("0" + (dateOb.getMonth() + 1)).slice(-2);
+        let year = dateOb.getFullYear();
+        let hours = dateOb.getHours();
+        let minuts = dateOb.getMinutes();
+        let seconds = dateOb.getSeconds();
 
-        // GENERATE 
-        const url = cloudinary.url("plans/plan_desc_image", {
-            width: 100,
-            height: 150,
-            crop: 'scale'
+        const result =  cloudinary.uploader.upload('https://upload.wikimedia.org/wikipedia/commons/a/ae/Olympic_flag.jpg', { public_id: "plans/"+date+"-"+month+"-"+year+"_"+hours+"_"+minuts+"_"+seconds });
+        result.then((data) => {
+          console.log(data);
+          console.log(data.secure_url);
+          res.status(200).json({ url: data.secure_url })
+        }).catch((err) => {
+          console.log(err);
         });
 
-        // THE OUTPUT URL
-        console.log(url);
-
+        // // GENERATE 
+        // const url = cloudinary.url("plans/plan_desc_image", {
+        //     width: 100,
+        //     height: 150,
+        //     crop: 'scale'
+        // });
     } catch (error) {
         res.send(`Error ${error.errorMessage}`)
     }

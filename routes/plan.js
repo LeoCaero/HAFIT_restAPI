@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const {Plan} = require("../models/plan");
 const errors = require("../utils/errorMessages");
+
 const {searchBy,deleteBy,autoincrement,editBy, uploadImage} = require ('../controllers/controller');
 const {isAlphabet, notEmpty,minAndMaxCharacter} = require ('../utils/validations');
 
@@ -261,9 +262,16 @@ router.put('/edit',async (req,res) =>{
     try {
       let filterBy = req.query.filterBy || req.body.filterBy;
       let filter = req.query.filter || req.body.filter;
+      let data;
+
+    if (filterBy === 'planId') {//IF IT IS PLANID, NORMAL FILTER
+       data = await Plan.find({[filterBy]: filter });
+    } else {//IF IS NOT PLANID FILTER USING REGEX
+      data = await Plan.find({[filterBy]: { $regex: new RegExp(filter, 'i') } });
+
+    }
       console.log(filterBy)
       console.log(filter)
-      const data = await Plan.find({[filterBy]: { $regex: new RegExp(filter, 'i') } });
       console.log(data)
       res.json(data)
     } catch (error) {
@@ -300,5 +308,5 @@ router.put('/edit',async (req,res) =>{
  *         description: Internal server error
  */
   router.post('/uploadImages',async(req,res)=>{
-    await uploadImage(req,res);
+    return await uploadImage(req,res);
   })
