@@ -1,7 +1,8 @@
 *.logs
 *.git
+*.logs
+*.git
 .env
 package.json
 package-lock.json
 node_modules
-package-lock.json
