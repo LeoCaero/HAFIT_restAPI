@@ -4,6 +4,7 @@ const connectToDatabase = require('./config/db');
 const swaggerConfig = require('./config/swagger');
 const usersRouter = require('./routes/user');
 const productsRouter = require('./routes/product');
+const plansRouter = require('./routes/plan');
 
 const cors = require('cors');
 
@@ -21,6 +22,7 @@ swaggerConfig(app);
 // Routes
 app.use('/api/user', usersRouter);
 app.use('/api/product', productsRouter);
+app.use('/api/plan',plansRouter)
 
 // Database Connection
 connectToDatabase();
