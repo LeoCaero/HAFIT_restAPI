@@ -196,8 +196,8 @@ module.exports = {
           api_secret: "ZrUxDk1iFEw57psqVsHVCLgjFMQ"
         });
 
-        console.log('Featured Image: ',req.query.featuredImg)
-        let image = req.body ;
+        // console.log('Featured Image: ',req.quey.featuredImg)
+        // let image = req.quey.featuredImg ;
         // UPLOAD
         let dateOb = new Date();
         let date = ("0" + dateOb.getDate()).slice(-2);
