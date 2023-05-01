@@ -9,12 +9,7 @@ const exercicesRouter = require('./routes/exercice');
 const cloudinary = require('cloudinary').v2;
 
 
-// Configuration 
-cloudinary.config({
-  cloud_name: "dlomgjt1k",
-  api_key: "447613727928719",
-  api_secret: "ZrUxDk1iFEw57psqVsHVCLgjFMQ"
-});
+
 const cors = require('cors');
 
 

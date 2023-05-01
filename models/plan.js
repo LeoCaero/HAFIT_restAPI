@@ -18,21 +18,21 @@ const planSchema = new mongoose.Schema({
   featuredImg:{
     type:String,
     default: ''
-  }
+  },
   // autorId: {
   //     type: User.schema,
   //     ref: "User",
   //     required: false,
   //     default:"",
   // },
-  // user: [
-  //   {
-  //   type: User.schema,
-  //   ref: "User",
-  //   required:false,
-  //   default:"",
-  //   }
-  // ]
+  user: [
+    {
+    type: User.schema,
+    ref: "User",
+    required:false,
+    default:"",
+    }
+  ]
   
 }, { collection: 'Plan' });
 
