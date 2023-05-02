@@ -1,31 +1,34 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
+const defaultValues = require("../utils/defaultValues.js");
 
-const ProductSchema = new mongoose.Schema({
-  productId: Number,
-  name: String,
-  price: {
-    type: mongoose.Decimal128
+const ProductSchema = new mongoose.Schema(
+  {
+    productId: Number,
+    name: String,
+    price: {
+      type: mongoose.Decimal128,
+    },
+    description: String,
+    type: String,
+    stock: Number,
+    image: {
+      type: String,
+      default: defaultValues.product.image
+    },
+    quantity: {
+      type: Number,
+      default: 1
+    }
   },
-  description: String,
-  type: String,
-  stock: Number,
-  image: String,
-}, {collection: 'Product'});
+  { collection: "Product", versionKey: false }
+);
 
-// Configuramos la auto-incrementación de la propiedad "id" usando Mongoose's pre-save hook
-ProductSchema.pre('save', function (next) {
-  const doc = this;
-  mongoose
-    .model('Product', ProductSchema)
-    .countDocuments({}, function (err, count) {
-      if (err) {
-        return next(err);
-      }
-      doc.productId = count + 1;
-      next();
-    });
-});
+ProductSchema.methods.toJSON = function () {
+  return { ...this.toObject(), id: this._id };
+};
 
-const Product = mongoose.model('Product', ProductSchema);
+
+
+const Product = mongoose.model("Product", ProductSchema);
 
 module.exports = Product;

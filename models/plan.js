@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const User = require("./user");
   
 
-const planSchema = new mongoose.Schema({
+const PlanSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
@@ -37,9 +37,9 @@ const planSchema = new mongoose.Schema({
 }, { collection: 'Plan' });
 
 
-const Plan = mongoose.model('Plan', planSchema);
+const Plan = mongoose.model('Plan', PlanSchema);
 
-planSchema.index({planId: 1}, { unique: true });
+PlanSchema.index({planId: 1}, { unique: true });
 
 async function findAndDelete(tableName,data) { 
   let deletedPlan = await Plan.findOne({[tableName]: data})

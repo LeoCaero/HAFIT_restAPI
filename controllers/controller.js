@@ -4,59 +4,6 @@ const cloudinary = require('cloudinary').v2;
 
 
 module.exports = {
-  // searchBy: async function (model, req, res) {
-  //   let data = req.query.data;
-  //   let search = req.query.search;
-  //   let query = {};
-  //   // if (typeof data === 'string') {
-  //   //   if (notEmpty(data)) {   
-  //   //     if (isAlphabet(data)) {
-  //   //       if (!minAndMaxCharacter(data,2,10)) {
-  //   //         return res.status(503).send(`El campo ${data} como minimo debe de contner 2 caracteres y como maximo 10 caracteres`);
-  //   //       }
-  //   //     }else{
-  //   //       return res.status(502).send(`Debe de contener solo letras. Valor escrito '${data}'`);
-  //   //     }
-  //   //   }else{
-  //   //     return res.status(501).send(`El campo ${data} no debe de estar vacio`);
-  //   //   }
-  //   // }else if(typeof data === 'integer'){
-  //   //   if (notEmpty(data)) {   
-  //   //    if(!isNumeric(data)){
-  //   //       return res.status(502).send(`El ${data} debe de ser un número`);
-  //   //    }
-  //   //   }else{
-  //   //   return res.status(501).send(`El campo ${data} no debe de estar vacio`);
-  //   //  }
-  //   // }
- 
-  //   if (!search || !data) {
-  //     if (req.body && Object.keys(req.body).length) {
-  //       search = req.body.search;
-  //       data = req.body.data;
-  //     } else {
-  //       return res.status(400).json({ message: errors.notFound.missing });
-  //     }
-  //   }
-
-  //   query[search] = data;
-
-  //   try {
-  //     let result = await model.findOne(query);
-  //     if (result) {
-  //       res.json(result);
-  //     } else {
-  //       let modelName =
-  //         model.modelName.charAt(0).toLowerCase() + model.modelName.slice(1);
-  //       res.status(404).json({
-  //         message:
-  //           errors.notFound[modelName][search.charAt(0) + search.slice(1)],
-  //       });
-  //     }
-  //   } catch (error) {
-  //     res.status(500).json({ message: error.message });
-  //   }
-  // },
   searchBy: async function (model, req, res) {
     let data = req.query.data;
     let search = req.query.search;
