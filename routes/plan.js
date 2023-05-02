@@ -81,33 +81,39 @@ router.get("/all", async (req, res) => {
  */
 router.post("/add",async (req, res) => {
   try {
-    let { name, planId, description,featuredImg } = req.query;
-    if (notEmpty(name)) {   
-        if (!minAndMaxCharacter(name,2,15)) {
-          return res.status(503).send(`El campo "Name" como minimo debe de contner 2 caracteres y como maximo 15 caracteres`);
-        }
-    }else{
-      return res.status(501).send(`El campo "Name" no debe de estar vacio`);
-    }
+  
+    let name = req.body.name || req.query.name;
+    let description = req.body.description || req.query.description;
+    let featuredImg = req.body.featuredImg || req.query.featuredImg;
+    
+    // if (notEmpty(name)) {   
+    //     if (!minAndMaxCharacter(name,2,15)) {
+    //       return res.status(503).send(`El campo "Name" como minimo debe de contner 2 caracteres y como maximo 15 caracteres`);
+    //     }
+    // }else{
+    //   return res.status(501).send(`El campo "Name" no debe de estar vacio`);
+    // }
 
-    if (notEmpty(description)) {
-        if (!minAndMaxCharacter(description,2,200)) {
-          return res.status(503).send(`El campo "Description" como minimo debe de contner 2 caracteres y como maximo 200 caracteres`);
-        }
-    }else{
-      return res.status(501).send(`El campo "Description" no debe de estar vacio`);
-    }
+    // if (notEmpty(description)) {
+    //     if (!minAndMaxCharacter(description,2,200)) {
+    //       return res.status(503).send(`El campo "Description" como minimo debe de contner 2 caracteres y como maximo 200 caracteres`);
+    //     }
+    // }else{
+    //   return res.status(501).send(`El campo "Description" no debe de estar vacio`);
+    // }
 
-    planId = await autoincrement(Plan,'planId');
-    let newPlan = new Plan({
+    let planId = await autoincrement(Plan,'planId');
+    const newPlan = new Plan({
       name,
-      planId,
       description,
+      planId,
       featuredImg
     });
-
+    console.log(newPlan)
+    
     const savedPlan = await newPlan.save();
-    res.status(201).send(`El plan ${newPlan.name} con id ${newPlan.planId} se añadido correctamente`);
+    console.log('saved plan ',savedPlan)
+    res.status(201).json(savedPlan);
 
   } catch (error) {
     res.status(500).json({message: error.message});

@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const Product = require("./product");
+const {Plan} = require("./plan");
 
 const userTypeEnum = ["client", "admin", "soci", "treballador"];
 
@@ -38,6 +39,14 @@ const userSchema = new Schema(
         ref: "Product",
         required: false,
         unique: true
+      }
+    ],
+    plans:[
+      {
+      type: Plan.schema,
+      ref: "Plan",
+      required: false,
+      unique: false
       }
     ]
   },

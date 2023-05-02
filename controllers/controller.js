@@ -8,6 +8,7 @@ module.exports = {
     let result = await model.findOne().sort({ [fieldName]: -1 });
     return result ? result[fieldName] + 1 : 1;
   },
+
   searchBy: async function (model, req, res) {
     let data = req.query.data;
     let search = req.query.search;
@@ -137,9 +138,9 @@ module.exports = {
     try {
         // CONFIGURATION 
         cloudinary.config({
-          cloud_name: "dlomgjt1k",
-          api_key: "447613727928719",
-          api_secret: "ZrUxDk1iFEw57psqVsHVCLgjFMQ"
+          cloud_name: process.env.CLOUD_NAME,
+          api_key: process.env.CLOUD_API_KEY,
+          api_secret: process.env.CLOUD_API_SECRET
         });
 
         // console.log('Featured Image: ',req.quey.featuredImg)

@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const User = require("../models/user");
+const {Plan} = require("../models/plan"); 
 const errors = require("../utils/errorMessages");
 const { searchBy, deleteBy, editBy } = require("../controllers/controller");
 const Product = require("../models/product");
@@ -256,6 +257,25 @@ router.put("/cart", async (req, res) => {
     } else {
       throw new Error("Acción no válida");
     }
+
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+router.put("/plans", async (req, res) => {
+  try {
+    const { userId, planId } = req.body;
+    const plan = await Plan.find({planId:planId});
+    console.log(plan)
+    if (!plan) {
+      throw new Error("Plan no encontrado");
+    }
+
+    const user = await User.findOneAndUpdate({userId:userId},{$push:{plans:plan}},{new:true});
+    console.log(user)
+    updatedUser = await user.save();
 
     res.status(200).json(updatedUser);
   } catch (error) {
