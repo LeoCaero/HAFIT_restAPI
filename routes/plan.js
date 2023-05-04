@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const {Plan} = require("../models/plan");
+const Plan = require("../models/plan");
+const User   = require("../models/user");
 const errors = require("../utils/errorMessages");
 
 const {searchBy,deleteBy,autoincrement,editBy, uploadImage} = require ('../controllers/controller');
@@ -85,6 +86,7 @@ router.post("/add",async (req, res) => {
     let name = req.body.name || req.query.name;
     let description = req.body.description || req.query.description;
     let featuredImg = req.body.featuredImg || req.query.featuredImg;
+    let _id = req.body._id || req.query._id;
     
     // if (notEmpty(name)) {   
     //     if (!minAndMaxCharacter(name,2,15)) {
@@ -104,6 +106,7 @@ router.post("/add",async (req, res) => {
 
     let planId = await autoincrement(Plan,'planId');
     const newPlan = new Plan({
+      _id,
       name,
       description,
       planId,
@@ -316,3 +319,22 @@ router.put('/edit',async (req,res) =>{
   router.post('/uploadImages',async(req,res)=>{
     return await uploadImage(req,res);
   })
+
+  router.put("/users", async (req, res) => {
+    try {
+      const { userId, planId } = req.body;
+      const user = await User.findById(userId);
+      console.log(user)
+      if (!user) {
+        throw new Error("Plan no encontrado");
+      }
+  
+      const plan = await Plan.findOneAndUpdate({planId:planId},{$push:{user:user}},{new:true});
+      console.log(plan)
+      updatedPlan = await plan.save();
+  
+      res.status(200).json(`Plan Upated ${updatedPlan}`);
+    } catch (error) {
+      res.status(400).json({ message: error.message });
+    }
+  });

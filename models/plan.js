@@ -1,8 +1,12 @@
 const mongoose = require("mongoose");
 const User = require("./user");
+const Product = require("./product")
+const userSchema = require("./user");
+const defaultValues = require("../utils/defaultValues");
   
 
-const PlanSchema = new mongoose.Schema({
+const PlanSchema = new mongoose.Schema(
+  {
   name: {
     type: String,
     required: true,
@@ -17,33 +21,18 @@ const PlanSchema = new mongoose.Schema({
   },
   featuredImg:{
     type:String,
-    default: ''
+    default: defaultValues.product.image
   },
-  // autorId: {
-  //     type: User.schema,
-  //     ref: "User",
-  //     required: false,
-  //     default:"",
-  // },
-  // user: [
-  //   {
-  //   type: User.schema,
-  //   ref: "User",
-  //   required:false,
-  //   default:"",
-  //   }
-  // ]
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: false
+  },
   
 }, { collection: 'Plan' });
 
 
+PlanSchema.index({planId: 1}, { unique: true });
 const Plan = mongoose.model('Plan', PlanSchema);
 
-PlanSchema.index({planId: 1}, { unique: true });
-
-async function findAndDelete(tableName,data) { 
-  let deletedPlan = await Plan.findOne({[tableName]: data})
-  return  deletedPlan ? Plan.deleteOne(deletedPlan) : null;
-}
-
-module.exports = {Plan,findAndDelete};
+module.exports = Plan;

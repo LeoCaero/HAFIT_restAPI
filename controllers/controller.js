@@ -1,6 +1,9 @@
 const errors = require("../utils/errorMessages");
 const { isAlphabet,isNumeric,notEmpty,minAndMaxCharacter } = require("../utils/validations");
 const cloudinary = require('cloudinary').v2;
+const upload = require("multer");
+const uploads = require('../utils/uploads')
+const fs = require('fs')
 
 
 module.exports = {
@@ -82,8 +85,8 @@ module.exports = {
       } else {
         res
           .status(200)
-          .send(
-            `El ${modelName.toUpperCase()} "${result.name}" ha sido eliminado`
+          .json(
+            {message:`El ${modelName.toUpperCase()} "${result.name}" ha sido eliminado`}
           );
       }
     } catch (err) {
@@ -100,20 +103,20 @@ module.exports = {
       let modelId = modelName+"Id";
       let { [modelId]: id, ...updates } = req.query;
       console.log(updates)
-      if (notEmpty(updates.name)) {   
-        if (!minAndMaxCharacter(updates.name,2,15)) {
-          return res.status(503).send(`El campo "Name" como minimo debe de contner 2 caracteres y como maximo 15 caracteres`);
-        }
-    }else{
-      return res.status(501).send(`El campo "Name" no debe de estar vacio`);
-    }
-    if (notEmpty(updates.description)) {
-      if (!minAndMaxCharacter(updates.description,2,200)) {
-        return res.status(503).send(`El campo "Description" como minimo debe de contner 2 caracteres y como maximo 200 caracteres`);
-      }
-  }else{
-    return res.status(501).send(`El campo "Description" no debe de estar vacio`);
-  }
+  //     if (notEmpty(updates.name)) {   
+  //       if (!minAndMaxCharacter(updates.name,2,15)) {
+  //         return res.status(503).send(`El campo "Name" como minimo debe de contner 2 caracteres y como maximo 15 caracteres`);
+  //       }
+  //   }else{
+  //     return res.status(501).send(`El campo "Name" no debe de estar vacio`);
+  //   }
+  //   if (notEmpty(updates.description)) {
+  //     if (!minAndMaxCharacter(updates.description,2,200)) {
+  //       return res.status(503).send(`El campo "Description" como minimo debe de contner 2 caracteres y como maximo 200 caracteres`);
+  //     }
+  // }else{
+  //   return res.status(501).send(`El campo "Description" no debe de estar vacio`);
+  // }
       if(!isNumeric(id)){
         return res.status(502).send(`El ${modelId} debe de ser un número`);
       }
@@ -121,6 +124,7 @@ module.exports = {
         new: true,
         // runValidators: true,
       });
+
       res.status(200).json(updatedDoc);
     } catch (error) {
       res.status(400).json({ message: error.message });
@@ -142,9 +146,21 @@ module.exports = {
           api_key: process.env.CLOUD_API_KEY,
           api_secret: process.env.CLOUD_API_SECRET
         });
-
+        const uploader = async(path) => await cloudinary.uploads(path,'Images');
+        if (req.method === 'POST') {
+          const urls = []
+          const files  = req.featuredImg;
+          for(const file of files){
+            const {path} = file;
+            const newPath = await uploader(path)
+            urls.push(newPath)
+            fs.unlinkSync(path)
+          }
+        }
         // console.log('Featured Image: ',req.quey.featuredImg)
-        // let image = req.quey.featuredImg ;
+         let image = req.query.featuredImg || req.body.featuredImg;
+         console.log(image)
+        
         // UPLOAD
         let dateOb = new Date();
         let date = ("0" + dateOb.getDate()).slice(-2);
@@ -154,7 +170,7 @@ module.exports = {
         let minuts = dateOb.getMinutes();
         let seconds = dateOb.getSeconds();
 
-        const result =  cloudinary.uploader.upload('https://upload.wikimedia.org/wikipedia/commons/a/ae/Olympic_flag.jpg', { public_id: "plans/"+date+"-"+month+"-"+year+"_"+hours+"_"+minuts+"_"+seconds });
+       // const result =  cloudinary.uploader.upload(image, { public_id: "plans/"+date+"-"+month+"-"+year+"_"+hours+"_"+minuts+"_"+seconds });
         result.then((data) => {
           console.log(data);
           console.log(data.secure_url);

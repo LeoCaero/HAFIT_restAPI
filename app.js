@@ -6,7 +6,6 @@ const usersRouter = require('./routes/user');
 const productsRouter = require('./routes/product');
 const plansRouter = require('./routes/plan');
 const exercicesRouter = require('./routes/exercice');
-const cloudinary = require('cloudinary').v2;
 
 
 

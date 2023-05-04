@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const User = require("../models/user");
-const {Plan} = require("../models/plan"); 
+const User   = require("../models/user");
+const Plan = require("../models/plan"); 
 const errors = require("../utils/errorMessages");
 const { searchBy, deleteBy, editBy } = require("../controllers/controller");
 const Product = require("../models/product");
@@ -277,7 +277,26 @@ router.put("/plans", async (req, res) => {
     console.log(user)
     updatedUser = await user.save();
 
-    res.status(200).json(updatedUser);
+    res.status(200).json(`User updated: ${updatedUser}`);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+router.put("/deletePlans", async (req, res) => {
+  try {
+    const { userId, planId } = req.body;
+    const plan = await Plan.findOne({planId:planId});
+    console.log('Delete plan ------------------->\n',plan)
+    if (!plan) {
+      throw new Error("Plan no encontrado");
+    }
+
+    const user = await User.findOneAndUpdate({userId:userId},{$pull:{plans:{planId: plan.planId}}},{new:true});
+    console.log(user)
+    updatedUser = await user.save();
+
+    res.status(200).json(`User updated: ${updatedUser}`);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
