@@ -101,8 +101,7 @@ module.exports = {
     try {
       let modelName = model.modelName.charAt(0).toLowerCase() + model.modelName.slice(1);
       let modelId = modelName+"Id";
-      let { [modelId]: id, ...updates } = req.query;
-      console.log(updates)
+      let { [modelId]: id, ...updates } = req.query || req.body;
   //     if (notEmpty(updates.name)) {   
   //       if (!minAndMaxCharacter(updates.name,2,15)) {
   //         return res.status(503).send(`El campo "Name" como minimo debe de contner 2 caracteres y como maximo 15 caracteres`);
