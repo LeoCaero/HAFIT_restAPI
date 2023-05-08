@@ -52,6 +52,23 @@ const userSchema = new Schema(
   },
   { collection: "User" }
 );
+// AUTOINCREMENT
+userSchema.pre("save", function (next) {
+  const user = this;
+  if (user.isNew) {
+    return User.findOne()
+      .sort("-userId")
+      .exec()
+      .then(lastUser => {
+        user.userId = lastUser ? lastUser.userId + 1 : 1;
+      })
+      .catch(err => {
+        throw err;
+      });
+  } else {
+    return Promise.resolve();
+  }
+});
 
 
 const User = mongoose.model("User", userSchema);

@@ -119,11 +119,11 @@ module.exports = {
       if(!isNumeric(id)){
         return res.status(502).send(`El ${modelId} debe de ser un número`);
       }
-      const updatedDoc = await model.findOneAndUpdate({ [modelId]: id }, updates, {
+      const updatedDoc = await model.findOneAndUpdate({ [modelId]: id }, updates,{
         new: true,
         // runValidators: true,
       });
-
+   
       res.status(200).json(updatedDoc);
     } catch (error) {
       res.status(400).json({ message: error.message });

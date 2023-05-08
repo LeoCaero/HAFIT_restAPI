@@ -3,7 +3,7 @@ const router = express.Router();
 const User   = require("../models/user");
 const Plan = require("../models/plan"); 
 const errors = require("../utils/errorMessages");
-const { searchBy, deleteBy, editBy } = require("../controllers/controller");
+const { searchBy, deleteBy, editBy, autoincrement } = require("../controllers/controller");
 const Product = require("../models/product");
 
 module.exports = router;
