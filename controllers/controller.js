@@ -1,9 +1,11 @@
 const errors = require("../utils/errorMessages");
-const { isAlphabet,isNumeric,notEmpty,minAndMaxCharacter } = require("../utils/validations");
+const { isAlphabet, isNumeric, notEmpty, minAndMaxCharacter } = require("../utils/validations");
 const cloudinary = require('cloudinary').v2;
 const upload = require("multer");
 const uploads = require('../utils/uploads')
-const fs = require('fs')
+const fileUpload = require('express-fileupload');
+const imageUploader = require('../utils/uploads');
+const fs = require('fs');
 
 
 module.exports = {
@@ -74,7 +76,7 @@ module.exports = {
       query[deleteBy] = data;
 
       let result = await model.findOneAndDelete(query);
-       modelName =
+      modelName =
         model.modelName.charAt(0).toLowerCase() + model.modelName.slice(1);
       if (!result) {
         res
@@ -86,7 +88,7 @@ module.exports = {
         res
           .status(200)
           .json(
-            {message:`El ${modelName.toUpperCase()} "${result.name}" ha sido eliminado`}
+            { message: `El ${modelName.toUpperCase()} "${result.name}" ha sido eliminado` }
           );
       }
     } catch (err) {
@@ -98,95 +100,143 @@ module.exports = {
     }
   },
   editBy: async function (model, req, res) {
+    
     try {
+      
       let modelName = model.modelName.charAt(0).toLowerCase() + model.modelName.slice(1);
-      let modelId = modelName+"Id";
+      let modelId = modelName + "Id";
       let { [modelId]: id, ...updates } = req.query || req.body;
-  //     if (notEmpty(updates.name)) {   
-  //       if (!minAndMaxCharacter(updates.name,2,15)) {
-  //         return res.status(503).send(`El campo "Name" como minimo debe de contner 2 caracteres y como maximo 15 caracteres`);
-  //       }
-  //   }else{
-  //     return res.status(501).send(`El campo "Name" no debe de estar vacio`);
-  //   }
-  //   if (notEmpty(updates.description)) {
-  //     if (!minAndMaxCharacter(updates.description,2,200)) {
-  //       return res.status(503).send(`El campo "Description" como minimo debe de contner 2 caracteres y como maximo 200 caracteres`);
-  //     }
-  // }else{
-  //   return res.status(501).send(`El campo "Description" no debe de estar vacio`);
-  // }
-      if(!isNumeric(id)){
+      //     if (notEmpty(updates.name)) {   
+      //       if (!minAndMaxCharacter(updates.name,2,15)) {
+      //         return res.status(503).send(`El campo "Name" como minimo debe de contner 2 caracteres y como maximo 15 caracteres`);
+      //       }
+      //   }else{
+      //     return res.status(501).send(`El campo "Name" no debe de estar vacio`);
+      //   }
+      //   if (notEmpty(updates.description)) {
+      //     if (!minAndMaxCharacter(updates.description,2,200)) {
+      //       return res.status(503).send(`El campo "Description" como minimo debe de contner 2 caracteres y como maximo 200 caracteres`);
+      //     }
+      // }else{
+      //   return res.status(501).send(`El campo "Description" no debe de estar vacio`);
+      // }
+      if (!isNumeric(id)) {
         return res.status(502).send(`El ${modelId} debe de ser un número`);
       }
-      const updatedDoc = await model.findOneAndUpdate({ [modelId]: id }, updates,{
+      const updatedDoc = await model.findOneAndUpdate({ [modelId]: id }, updates, {
         new: true,
         // runValidators: true,
       });
-   
+
       res.status(200).json(updatedDoc);
     } catch (error) {
       res.status(400).json({ message: error.message });
     }
   },
-  filter: async function (filterBy,model,req,res){
-      try {
-        let filter = req.query.filter || req.body.filter
-        db.model.find({[filterBy]: { $regex: new RegExp(filter, 'i')}})
-      } catch (error) {
-        res.send(`Error ${error.message}`)
-      }
+  filter: async function (filterBy, model, req, res) {
+    try {
+      let filter = req.query.filter || req.body.filter
+      db.model.find({ [filterBy]: { $regex: new RegExp(filter, 'i') } })
+    } catch (error) {
+      res.send(`Error ${error.message}`)
+    }
   },
   uploadImage: async function (req, res) {
     try {
-        // CONFIGURATION 
-        cloudinary.config({
-          cloud_name: process.env.CLOUD_NAME,
-          api_key: process.env.CLOUD_API_KEY,
-          api_secret: process.env.CLOUD_API_SECRET
-        });
-        const uploader = async(path) => await cloudinary.uploads(path,'Images');
-        if (req.method === 'POST') {
-          const urls = []
-          const files  = req.featuredImg;
-          for(const file of files){
-            const {path} = file;
-            const newPath = await uploader(path)
-            urls.push(newPath)
-            fs.unlinkSync(path)
-          }
-        }
-        // console.log('Featured Image: ',req.quey.featuredImg)
-         let image = req.query.featuredImg || req.body.featuredImg;
-         console.log(image)
-        
-        // UPLOAD
-        let dateOb = new Date();
-        let date = ("0" + dateOb.getDate()).slice(-2);
-        let month = ("0" + (dateOb.getMonth() + 1)).slice(-2);
-        let year = dateOb.getFullYear();
-        let hours = dateOb.getHours();
-        let minuts = dateOb.getMinutes();
-        let seconds = dateOb.getSeconds();
+      //CONFIGURATION 
+      cloudinary.config({
+        cloud_name: process.env.CLOUD_NAME,
+        api_key: process.env.CLOUD_API_KEY,
+        api_secret: process.env.CLOUD_API_SECRET
+      });
+      let image = req.query.featuredImg || req.body.featuredImg || req.files;
+      // const image = req.file.path;
+      console.log('Image: ', image)
+      console.log(req.file.file[0]);
+      // const resultUpload = imageUploader.uploadImage();
+      // console.log(resultUpload)
+      //SAVE TO EXPRESS
+      // let imageUpdate = imageUploader.uploadImage('featuredImg')
+      // console.log(imageUpdate)
+      // upload.single('featuredImg')(req, res, function(err) {
+      //   console.log(req.featuredImg)
+      //   if (err) {
+      //     return res.status(500).send(err);
+      //   }
+      //   // la imagen se ha subido correctamente
+      //   const imageUrl = req.file.filename;
+      //   console.log(imageUrl)
+      //   // aquí puedes hacer lo que quieras con la URL de la imagen
+      //   res.status(200).json(imageUrl);
+      // });
 
-       // const result =  cloudinary.uploader.upload(image, { public_id: "plans/"+date+"-"+month+"-"+year+"_"+hours+"_"+minuts+"_"+seconds });
-        result.then((data) => {
-          console.log(data);
-          console.log(data.secure_url);
-          res.status(200).json({ url: data.secure_url })
-        }).catch((err) => {
-          console.log(err);
-        });
+      // // // UPLOAD
+      // let dateOb = new Date();
+      // let date = ("0" + dateOb.getDate()).slice(-2);
+      // let month = ("0" + (dateOb.getMonth() + 1)).slice(-2);
+      // let year = dateOb.getFullYear();
+      // let hours = dateOb.getHours();
+      // let minuts = dateOb.getMinutes();
+      // let seconds = dateOb.getSeconds();
+      const options = {
+        use_filename: true,
+        unique_filename: false,
+        overwrite: true,
+      };
 
-        // // GENERATE 
-        // const url = cloudinary.url("plans/plan_desc_image", {
-        //     width: 100,
-        //     height: 150,
-        //     crop: 'scale'
-        // });
+
+      // console.log('hola');
+// Leemos la imagen como un archivo binario
+// let imageFile = fs.readFileSync(image);
+// console.log(imageFile)
+// // Escribimos la imagen a un nuevo archivo
+
+// fs.writeFileSync('../uploads/nueva-imagen.png', imageFile);
+
+      try {
+        // Upload the image
+        // const result = await cloudinary.uploader.upload('https://cloudinary-devs.github.io/cld-docs-assets/assets/images/happy_people.jpg', options);
+        const result = await cloudinary.uploader.upload(image, options);
+        console.log(result);
+        res.status(200).json(result.secure_url)
+      } catch (error) {
+        console.error(error);
+      }
+      // const result =  await cloudinary.uploader.upload(image, { public_id: "plans/"+date+"-"+month+"-"+year+"_"+hours+"_"+minuts+"_"+seconds });
+      // console.log(result);
+      // result.then((data) => {
+      //   console.log(data);
+      //   console.log(data.secure_url);
+      //   res.status(200).json(data)
+      // }).catch((err) => {
+      //   console.log(err);
+      // });
+
+      // const fs = require('fs')
+      
+
+// const stream = cloudinary.uploader.upload_stream({ 
+//   folder: 'plans',
+//   public_id: date+"-"+month+"-"+year+"_"+hours+"_"+minuts+"_"+seconds 
+// }, function(err, res) {
+//   console.log(res);
+// });
+
+// const filePath = '../public/images/'+image;
+// const readStream = fs.createReadStream(filePath);
+
+// readStream.pipe(stream);
+
+      // // GENERATE 
+      // const url = cloudinary.url("plans/plan_desc_image", {
+      //     width: 100,
+      //     height: 150,
+      //     crop: 'scale'
+      // });
     } catch (error) {
-        res.send(`Error ${error.errorMessage}`)
+      res.status(500).send(`Error ${error.errorMessage}`)
+      
     }
-}
+  }
 
 };

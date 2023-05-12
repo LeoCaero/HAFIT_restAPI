@@ -3,10 +3,14 @@ const router = express.Router();
 const Plan = require("../models/plan");
 const User   = require("../models/user");
 const errors = require("../utils/errorMessages");
-
 const {searchBy,deleteBy,autoincrement,editBy, uploadImage} = require ('../controllers/controller');
 const {isAlphabet, notEmpty,minAndMaxCharacter} = require ('../utils/validations');
-
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/' });
+const path = require("path");
+const fs = require("fs");
+const cloudinary = require('cloudinary').v2;
+const cors = require('cors');
 
 module.exports = router;
 
@@ -112,10 +116,8 @@ router.post("/add",async (req, res) => {
       planId,
       featuredImg
     });
-    console.log(newPlan)
     
     const savedPlan = await newPlan.save();
-    console.log('saved plan ',savedPlan)
     res.status(201).json(savedPlan);
 
   } catch (error) {
@@ -234,6 +236,7 @@ router.delete("/delete", async (req, res) => {
  *         description: Internal server error
  */
 router.put('/edit',async (req,res) =>{
+  
     await editBy(Plan,req,res);
   });
 /**
@@ -287,6 +290,7 @@ router.put('/edit',async (req,res) =>{
       res.send(`Error ${error.message}`)
     }
   })
+   
 /**
  * @swagger
  * /api/plan/uploadImages:
@@ -316,9 +320,36 @@ router.put('/edit',async (req,res) =>{
  *       500:
  *         description: Internal server error
  */
-  router.post('/uploadImages',async(req,res)=>{
-    return await uploadImage(req,res);
-  })
+  // router.post('/uploadImages',upload.single('featuredImg') ,async(req,res)=>{
+  //   // return await uploadImage(req,res);
+  //   console.log(req.file,req.body)
+  // })
+
+  // router.post('/uploadImages',upload.single('featuredImg') ,async(req,res)=>{
+  //   // return await uploadImage(req,res);
+  //   // console.log(req.file,req.body)
+  // })
+  router.use(cors({
+    origin: 'http://localhost:4200'
+  }));
+  router.post('/uploadImages', upload.single('featuredImg'), (req, res) => {
+    
+    cloudinary.config({
+      cloud_name: process.env.CLOUD_NAME,
+      api_key: process.env.CLOUD_API_KEY,
+      api_secret: process.env.CLOUD_API_SECRET
+    });
+    const file = req.featuredImg;
+    console.log(file)
+    cloudinary.uploader.upload(file.path, (error, result) => {
+      if (error) {
+        res.status(500).json({ error });
+      } else {
+        res.header('Access-Control-Allow-Origin', '*').json(result);
+        // res.json(result);
+      }
+    });
+  });
 
   router.put("/users", async (req, res) => {
     try {
