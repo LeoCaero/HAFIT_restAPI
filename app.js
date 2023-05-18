@@ -9,7 +9,7 @@ const exercicesRouter = require('./routes/exercice');
 const cloudinary = require('cloudinary').v2;
 
 
-// Configuration 
+// Cloudinary configuration 
 cloudinary.config({
   cloud_name: "dlomgjt1k",
   api_key: "447613727928719",
