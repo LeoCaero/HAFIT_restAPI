@@ -92,21 +92,18 @@ router.post("/add",async (req, res) => {
     let featuredImg = req.body.featuredImg || req.query.featuredImg;
     let _id = req.body._id || req.query._id;
     
-    // if (notEmpty(name)) {   
-    //     if (!minAndMaxCharacter(name,2,15)) {
-    //       return res.status(503).send(`El campo "Name" como minimo debe de contner 2 caracteres y como maximo 15 caracteres`);
-    //     }
-    // }else{
-    //   return res.status(501).send(`El campo "Name" no debe de estar vacio`);
-    // }
+    if (notEmpty(name)) {   
+        if (!minAndMaxCharacter(name,2,15)) {
+          return res.status(503).send(`El campo "Name" como minimo debe de contner 2 caracteres y como maximo 15 caracteres`);
+        }
+    }else{
+      return res.status(501).send(`El campo "Name" no debe de estar vacio`);
+    }
 
-    // if (notEmpty(description)) {
-    //     if (!minAndMaxCharacter(description,2,200)) {
-    //       return res.status(503).send(`El campo "Description" como minimo debe de contner 2 caracteres y como maximo 200 caracteres`);
-    //     }
-    // }else{
-    //   return res.status(501).send(`El campo "Description" no debe de estar vacio`);
-    // }
+    if (notEmpty(description)) {
+    }else{
+      return res.status(501).send(`El campo "Description" no debe de estar vacio`);
+    }
 
     let planId = await autoincrement(Plan,'planId');
     const newPlan = new Plan({
@@ -329,9 +326,7 @@ router.put('/edit',async (req,res) =>{
   //   // return await uploadImage(req,res);
   //   // console.log(req.file,req.body)
   // })
-  router.use(cors({
-    origin: 'http://localhost:4200'
-  }));
+
   router.post('/uploadImages', upload.single('featuredImg'), (req, res) => {
     
     cloudinary.config({

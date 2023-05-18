@@ -106,20 +106,18 @@ module.exports = {
       let modelName = model.modelName.charAt(0).toLowerCase() + model.modelName.slice(1);
       let modelId = modelName + "Id";
       let { [modelId]: id, ...updates } = req.query || req.body;
-      //     if (notEmpty(updates.name)) {   
-      //       if (!minAndMaxCharacter(updates.name,2,15)) {
-      //         return res.status(503).send(`El campo "Name" como minimo debe de contner 2 caracteres y como maximo 15 caracteres`);
-      //       }
-      //   }else{
-      //     return res.status(501).send(`El campo "Name" no debe de estar vacio`);
-      //   }
-      //   if (notEmpty(updates.description)) {
-      //     if (!minAndMaxCharacter(updates.description,2,200)) {
-      //       return res.status(503).send(`El campo "Description" como minimo debe de contner 2 caracteres y como maximo 200 caracteres`);
-      //     }
-      // }else{
-      //   return res.status(501).send(`El campo "Description" no debe de estar vacio`);
-      // }
+          if (notEmpty(updates.name)) {   
+            if (!minAndMaxCharacter(updates.name,2,15)) {
+              return res.status(503).send(`El campo "Name" como minimo debe de contner 2 caracteres y como maximo 15 caracteres`);
+            }
+        }else{
+          return res.status(501).send(`El campo "Name" no debe de estar vacio`);
+        }
+        if (notEmpty(updates.description)) {
+          
+      }else{
+        return res.status(501).send(`El campo "Description" no debe de estar vacio`);
+      }
       if (!isNumeric(id)) {
         return res.status(502).send(`El ${modelId} debe de ser un número`);
       }
