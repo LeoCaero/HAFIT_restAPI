@@ -1,7 +1,11 @@
 const errors = require("../utils/errorMessages");
-const { isAlphabet,isNumeric,notEmpty,minAndMaxCharacter } = require("../utils/validations");
-const cloudinary = require('cloudinary').v2;
-
+const {
+  isAlphabet,
+  isNumeric,
+  notEmpty,
+  minAndMaxCharacter,
+} = require("../utils/validations");
+const cloudinary = require("cloudinary").v2;
 
 module.exports = {
   autoincrement: async function (model, fieldName) {
@@ -12,7 +16,7 @@ module.exports = {
     let data = req.query.data;
     let search = req.query.search;
     let query = {};
-    // if (notEmpty(data)) {   
+    // if (notEmpty(data)) {
     //     if (!minAndMaxCharacter(data,2,10)) {
     //       return res.status(503).send(`El campo ${data} como minimo debe de contner 2 caracteres y como maximo 10 caracteres`);
     //     }
@@ -36,9 +40,11 @@ module.exports = {
       if (result) {
         res.json(result);
       } else {
-        let modelName = model.modelName.charAt(0).toLowerCase() + model.modelName.slice(1);
+        let modelName =
+          model.modelName.charAt(0).toLowerCase() + model.modelName.slice(1);
         res.status(404).json({
-          message: errors.notFound[modelName][search.charAt(0) + search.slice(1)],
+          message:
+            errors.notFound[modelName][search.charAt(0) + search.slice(1)],
         });
       }
     } catch (error) {
@@ -70,7 +76,7 @@ module.exports = {
       query[deleteBy] = data;
 
       let result = await model.findOneAndDelete(query);
-       modelName =
+      modelName =
         model.modelName.charAt(0).toLowerCase() + model.modelName.slice(1);
       if (!result) {
         res
@@ -95,82 +101,88 @@ module.exports = {
   },
   editBy: async function (model, req, res) {
     try {
-      let modelName = model.modelName.charAt(0).toLowerCase() + model.modelName.slice(1);
-      let modelId = modelName+"Id";
-      let { [modelId]: id, ...updates } = req.query;
-      console.log(updates)
-      if (notEmpty(updates.name)) {   
-        if (!minAndMaxCharacter(updates.name,2,15)) {
-          return res.status(503).send(`El campo "Name" como minimo debe de contner 2 caracteres y como maximo 15 caracteres`);
+      let modelName =
+        model.modelName.charAt(0).toLowerCase() + model.modelName.slice(1);
+      let modelId = modelName + "Id";
+      let { [modelId]: id } = req.body || req.query;
+      let updates = req.body || req.query;
+      const updatedDoc = await model.findOneAndUpdate(
+        { [modelId]: id },
+        updates,
+        {
+          new: true,
         }
-    }else{
-      return res.status(501).send(`El campo "Name" no debe de estar vacio`);
-    }
-    if (notEmpty(updates.description)) {
-      if (!minAndMaxCharacter(updates.description,2,200)) {
-        return res.status(503).send(`El campo "Description" como minimo debe de contner 2 caracteres y como maximo 200 caracteres`);
-      }
-  }else{
-    return res.status(501).send(`El campo "Description" no debe de estar vacio`);
-  }
-      if(!isNumeric(id)){
-        return res.status(502).send(`El ${modelId} debe de ser un número`);
-      }
-      const updatedDoc = await model.findOneAndUpdate({ [modelId]: id }, updates, {
-        new: true,
-        // runValidators: true,
-      });
+      );
+      console.log()
       res.status(200).json(updatedDoc);
     } catch (error) {
       res.status(400).json({ message: error.message });
     }
   },
-  filter: async function (filterBy,model,req,res){
-      try {
-        let filter = req.query.filter || req.body.filter
-        db.model.find({[filterBy]: { $regex: new RegExp(filter, 'i')}})
-      } catch (error) {
-        res.send(`Error ${error.message}`)
-      }
+  filter: async function (filterBy, model, req, res) {
+    try {
+      let filter = req.query.filter || req.body.filter;
+      db.model.find({ [filterBy]: { $regex: new RegExp(filter, "i") } });
+    } catch (error) {
+      res.send(`Error ${error.message}`);
+    }
   },
   uploadImage: async function (req, res) {
     try {
-        // CONFIGURATION 
-        cloudinary.config({
-          cloud_name: "dlomgjt1k",
-          api_key: "447613727928719",
-          api_secret: "ZrUxDk1iFEw57psqVsHVCLgjFMQ"
-        });
+      // CONFIGURATION
+      cloudinary.config({
+        cloud_name: "dlomgjt1k",
+        api_key: "447613727928719",
+        api_secret: "ZrUxDk1iFEw57psqVsHVCLgjFMQ",
+      });
 
-        // console.log('Featured Image: ',req.quey.featuredImg)
-        // let image = req.quey.featuredImg ;
-        // UPLOAD
-        let dateOb = new Date();
-        let date = ("0" + dateOb.getDate()).slice(-2);
-        let month = ("0" + (dateOb.getMonth() + 1)).slice(-2);
-        let year = dateOb.getFullYear();
-        let hours = dateOb.getHours();
-        let minuts = dateOb.getMinutes();
-        let seconds = dateOb.getSeconds();
+      // console.log('Featured Image: ',req.quey.featuredImg)
+      // let image = req.quey.featuredImg ;
+      // UPLOAD
+      let dateOb = new Date();
+      let date = ("0" + dateOb.getDate()).slice(-2);
+      let month = ("0" + (dateOb.getMonth() + 1)).slice(-2);
+      let year = dateOb.getFullYear();
+      let hours = dateOb.getHours();
+      let minuts = dateOb.getMinutes();
+      let seconds = dateOb.getSeconds();
 
-        const result =  cloudinary.uploader.upload('https://upload.wikimedia.org/wikipedia/commons/a/ae/Olympic_flag.jpg', { public_id: "plans/"+date+"-"+month+"-"+year+"_"+hours+"_"+minuts+"_"+seconds });
-        result.then((data) => {
+      const result = cloudinary.uploader.upload(
+        "https://upload.wikimedia.org/wikipedia/commons/a/ae/Olympic_flag.jpg",
+        {
+          public_id:
+            "plans/" +
+            date +
+            "-" +
+            month +
+            "-" +
+            year +
+            "_" +
+            hours +
+            "_" +
+            minuts +
+            "_" +
+            seconds,
+        }
+      );
+      result
+        .then((data) => {
           console.log(data);
           console.log(data.secure_url);
-          res.status(200).json({ url: data.secure_url })
-        }).catch((err) => {
+          res.status(200).json({ url: data.secure_url });
+        })
+        .catch((err) => {
           console.log(err);
         });
 
-        // // GENERATE 
-        // const url = cloudinary.url("plans/plan_desc_image", {
-        //     width: 100,
-        //     height: 150,
-        //     crop: 'scale'
-        // });
+      // // GENERATE
+      // const url = cloudinary.url("plans/plan_desc_image", {
+      //     width: 100,
+      //     height: 150,
+      //     crop: 'scale'
+      // });
     } catch (error) {
-        res.send(`Error ${error.errorMessage}`)
+      res.send(`Error ${error.errorMessage}`);
     }
-}
-
+  },
 };

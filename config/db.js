@@ -12,9 +12,9 @@ async function connectToDatabase() {
   }
 }
 
-// const Product = require('../models/product');
+// const User = require('../models/user');
 
-// Product.updateMany({image: {$exists: false}}, {image: "https://res.cloudinary.com/dbml6cgrf/image/upload/v1682532766/HAFIT/Shared/default_quykfo.png"})
+// User.updateMany({biography: {$exists: true}}, {biography: "This is the default biography!"})
 //   .then((result) => {
 //     console.log(result);
 //   })

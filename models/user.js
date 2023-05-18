@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const Product = require("./product");
+const Plan = require("./plan");
 
 const userTypeEnum = ["client", "admin", "soci", "treballador"];
 
@@ -25,6 +26,10 @@ const userSchema = new Schema(
       enum: userTypeEnum,
       required: true,
     },
+    biography: {
+      type: String,
+      required: false,    
+    },
     products: [
       {
         type: Product.schema,
@@ -37,9 +42,9 @@ const userSchema = new Schema(
         type: Product.schema,
         ref: "Product",
         required: false,
-        unique: true
-      }
-    ]
+        unique: true,
+      },
+    ],  
   },
   { collection: "User" }
 );
@@ -51,10 +56,10 @@ userSchema.pre("save", function (next) {
     return User.findOne()
       .sort("-userId")
       .exec()
-      .then(lastUser => {
+      .then((lastUser) => {
         user.userId = lastUser ? lastUser.userId + 1 : 1;
       })
-      .catch(err => {
+      .catch((err) => {
         throw err;
       });
   } else {
@@ -62,11 +67,6 @@ userSchema.pre("save", function (next) {
   }
 });
 
-
 const User = mongoose.model("User", userSchema);
 
-
-
 module.exports = User;
-
-

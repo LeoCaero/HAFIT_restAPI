@@ -217,49 +217,83 @@ router.put("/edit", async (req, res) => {
 });
 
 router.put("/cart", async (req, res) => {
+  const { userId, productId, quantity, operation } = req.body;
+
   try {
-    const { userId, productId, action, quantity } = req.body;
+    let user = await User.findOne({ userId });
 
-    let updatedUser;
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
 
-    const product = await Product.findById(productId);
+    const product = await Product.findOne({ productId });
 
     if (!product) {
-      throw new Error("Producto no encontrado");
+      return res.status(404).send("Product not found");
     }
 
-    const user = await User.findById(userId);
-
-    const itemIndex = user.cartItems.findIndex(
-      (item) => item.productId === productId
+    let updatedQuantity;
+    let cartItem = user.cartItems.find(
+      (item) => item.productId == productId
     );
 
-    if (action === "add") {
-      if (itemIndex >= 0) {
-        user.cartItems[itemIndex].quantity += quantity;
-        updatedUser = await user.save();
-      } else {
-        const cartItem = { ...product.toObject(), quantity: 1 };
-        updatedUser = await User.findByIdAndUpdate(
-          userId,
-          { $push: { cartItems: cartItem } },
-          { new: true }
-        );
-      }
-    } else if (action === "remove") {
-      if (itemIndex >= 0) {
-        user.cartItems[itemIndex].quantity -= 1;
-        updatedUser = await user.save();
-      } else {
-        throw new Error("El producto no está en el carrito");
-      }
-    } else {
-      throw new Error("Acción no válida");
-    }
+    switch (operation) {
+      case "add":
+        if (!cartItem) {
+          cartItem = { ...product.toObject(), quantity: quantity };
+          user = await User.findOneAndUpdate(
+            { userId },
+            { $push: { cartItems: cartItem } },
+            { new: true }
+          );
+          updatedQuantity = cartItem.quantity + "[NEW PRODUCT]";
+          break;
+        }
+        const filter = { userId: userId, "cartItems.productId": productId };
+        const update = { $inc: { "cartItems.$.quantity": quantity } };
+        const options = { new: true, upsert: true };
 
-    res.status(200).json(updatedUser);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
+        user = await User.findOneAndUpdate(filter, update, options);
+        updatedQuantity = user.cartItems.find(
+          (item) => item.productId == productId
+        ).quantity;
+        break;
+
+      case "remove":
+        if (!cartItem) {
+          return res.status(404).send("Product not found in cart");
+        }
+
+        const currentQuantity = cartItem.quantity;
+
+        if (currentQuantity < quantity) {
+          return res
+            .status(400)
+            .send(
+              "Quantity to remove is greater than current quantity in cart"
+            );
+        } else if(currentQuantity == quantity){
+          user = await User.findOneAndUpdate(
+            { userId },
+            { $pull: { cartItems: cartItem } }
+          );
+          return res.status(200).send({mesage: "Product deleted succesfully!"});
+        }
+
+        cartItem.quantity -= quantity;
+        await user.save();
+        updatedQuantity = cartItem.quantity;
+        break;
+
+      default:
+        return res.status(400).send("Invalid operation");
+    }
+    // TO DEBUG
+    // res.send(
+    //   `[${user.name} ID:${userId}][${productId}] -> QTT: ${updatedQuantity}. `
+    // );
+    res.status(200).send(user);
+  } catch (error) {  
+    res.status(500).send("Internal Server Error");
   }
 });
-
