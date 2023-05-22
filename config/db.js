@@ -3,7 +3,7 @@ const mongoString = process.env.DATABASE_URL;
 
 async function connectToDatabase() {
   try {
-    await mongoose.connect("mongodb+srv://admin:admin@hafitcluster.c1ou0aj.mongodb.net/HAFIT");
+    await mongoose.connect(mongoString);
     console.log(`Runnning on MongoDB ${mongoose.version}`);
     console.log("Database Connected");
   } catch (error) {
