@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const User   = require("../models/user");
 const Plan = require("../models/plan"); 
+const Exercice = require("../models/exercice");
 const errors = require("../utils/errorMessages");
 const { searchBy, deleteBy, editBy, autoincrement } = require("../controllers/controller");
 const Product = require("../models/product");
@@ -283,6 +284,25 @@ router.put("/plans", async (req, res) => {
   }
 });
 
+router.put("/exercices", async (req, res) => {
+  try {
+    const { userId, exerciceId } = req.body;
+    const exercice = await Exercice.find({exerciceId:exerciceId});
+    console.log(exercice)
+    if (!exercice) {
+      throw new Error("Exercice no encontrado");
+    }
+
+    const user = await User.findOneAndUpdate({userId:userId},{$push:{exercices:exercice}},{new:true});
+    console.log(user)
+    updatedUser = await user.save();
+
+    res.status(200).json(`User updated: ${updatedUser}`);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
 router.put("/deletePlans", async (req, res) => {
   try {
     const { userId, planId } = req.body;
@@ -293,6 +313,25 @@ router.put("/deletePlans", async (req, res) => {
     }
 
     const user = await User.findOneAndUpdate({userId:userId},{$pull:{plans:{planId: plan.planId}}},{new:true});
+    console.log(user)
+    updatedUser = await user.save();
+
+    res.status(200).json(`User updated: ${updatedUser}`);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+router.put("/deleteExercices", async (req, res) => {
+  try {
+    const { userId, exerciceId } = req.body;
+    const exercice = await Plan.findOne({exerciceId:exerciceId});
+    console.log('Delete plan ------------------->\n',exercice)
+    if (!exercice) {
+      throw new Error("Exercice no encontrado");
+    }
+
+    const user = await User.findOneAndUpdate({userId:userId},{$pull:{exercices:{exercice: exercice.exerciceId}}},{new:true});
     console.log(user)
     updatedUser = await user.save();
 

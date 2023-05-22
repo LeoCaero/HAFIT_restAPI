@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-
+const defaultValues = require("../utils/defaultValues");
 
 const exerciceSchema = new mongoose.Schema({
   name: {
@@ -16,7 +16,16 @@ const exerciceSchema = new mongoose.Schema({
   },
   time:{
     type: Number
-  }
+  },
+  featuredImg:{
+    type:String,
+    default: defaultValues.product.image
+  },
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: false
+  },
 }, { collection: 'Exercice' });
 
 

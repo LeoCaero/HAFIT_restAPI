@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const Product = require("./product");
 const Plan = require("../models/plan");
+const Exercice = require("../models/exercice");
 
 const userTypeEnum = ["client", "admin", "soci", "treballador"];
 
@@ -45,6 +46,14 @@ const userSchema = new Schema(
       {
       type: Plan.schema,
       ref: "Plan",
+      required: false,
+      unique: false
+      }
+    ],
+    exercices:[
+      {
+      type: Exercice.schema,
+      ref: "Exercice",
       required: false,
       unique: false
       }
