@@ -4,7 +4,7 @@ module.exports={
         return element.match(alphaExp) ? true : false
     },
     notEmpty: function (element) {
-        return typeof element === 'string' || (typeof element ==='String') && element.length>0 ? true : false
+        return (typeof element == 'string' || typeof element =='String') && element.length>0 ? true : false
     },
     minAndMaxCharacter: function (element, min, max){
         if (element.length >= min && element.length <= max) {
