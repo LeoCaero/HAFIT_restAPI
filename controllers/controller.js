@@ -54,7 +54,7 @@ module.exports = {
   deleteBy: async function (model, req, res) {
     let modelName;
     try {
-      let data = req.query.data ;
+      let data = req.query.data;
       let deleteBy = req.query.deleteBy;
       let query = {};
 
@@ -100,31 +100,31 @@ module.exports = {
     }
   },
   editBy: async function (model, req, res) {
-    
+
     try {
-      
+
       let modelName = model.modelName.charAt(0).toLowerCase() + model.modelName.slice(1);
       let modelId = modelName + "Id";
       let { [modelId]: id, ...updates } = req.query || req.body;
-          if (updates.time) {
-            if(notEmpty(updates.time)){
-              if (!isNumeric(updates.time)) {
-                  return res.status(502).send(`El campo time debe de ser númerico`);
-              }
-            }else{
-              return res.status(501).send(`El campo time debe de contener como mínimo 1 caracter`)
-            }
+      if (updates.time) {
+        if (notEmpty(updates.time)) {
+          if (!isNumeric(updates.time)) {
+            return res.status(502).send(`El campo time debe de ser númerico`);
           }
-          if (notEmpty(updates.name)) {   
-            if (!minAndMaxCharacter(updates.name,2,15)) {
-              return res.status(503).send(`El campo "Name" como minimo debe de contner 2 caracteres y como maximo 15 caracteres`);
-            } 
-        }else{
-          return res.status(501).send(`El campo "Name" no debe de estar vacio`);
+        } else {
+          return res.status(501).send(`El campo time debe de contener como mínimo 1 caracter`)
         }
-        if (notEmpty(updates.description)) {
-          
-      }else{
+      }
+      if (notEmpty(updates.name)) {
+        if (!minAndMaxCharacter(updates.name, 2, 15)) {
+          return res.status(503).send(`El campo "Name" como minimo debe de contner 2 caracteres y como maximo 15 caracteres`);
+        }
+      } else {
+        return res.status(501).send(`El campo "Name" no debe de estar vacio`);
+      }
+      if (notEmpty(updates.description)) {
+
+      } else {
         return res.status(501).send(`El campo "Description" no debe de estar vacio`);
       }
       if (!isNumeric(id)) {
@@ -142,17 +142,17 @@ module.exports = {
   },
   editType: async function (model, req, res) {
     try {
-      
+
       let modelName = model.modelName.charAt(0).toLowerCase() + model.modelName.slice(1);
       let modelId = modelName + "Id";
       let { [modelId]: id, ...updates } = req.query || req.body;
-          
+
       const updatedDoc = await model.findOneAndUpdate({ [modelId]: id }, updates, {
         // new: true,
         // runValidators: true,
       });
 
-      res.status(200).json({updatedDoc});
+      res.status(200).json({ updatedDoc });
     } catch (error) {
       res.status(400).json({ message: error.message });
     }
@@ -210,12 +210,12 @@ module.exports = {
 
 
       // console.log('hola');
-// Leemos la imagen como un archivo binario
-// let imageFile = fs.readFileSync(image);
-// console.log(imageFile)
-// // Escribimos la imagen a un nuevo archivo
+      // Leemos la imagen como un archivo binario
+      // let imageFile = fs.readFileSync(image);
+      // console.log(imageFile)
+      // // Escribimos la imagen a un nuevo archivo
 
-// fs.writeFileSync('../uploads/nueva-imagen.png', imageFile);
+      // fs.writeFileSync('../uploads/nueva-imagen.png', imageFile);
 
       try {
         // Upload the image
@@ -237,19 +237,19 @@ module.exports = {
       // });
 
       // const fs = require('fs')
-      
 
-// const stream = cloudinary.uploader.upload_stream({ 
-//   folder: 'plans',
-//   public_id: date+"-"+month+"-"+year+"_"+hours+"_"+minuts+"_"+seconds 
-// }, function(err, res) {
-//   console.log(res);
-// });
 
-// const filePath = '../public/images/'+image;
-// const readStream = fs.createReadStream(filePath);
+      // const stream = cloudinary.uploader.upload_stream({ 
+      //   folder: 'plans',
+      //   public_id: date+"-"+month+"-"+year+"_"+hours+"_"+minuts+"_"+seconds 
+      // }, function(err, res) {
+      //   console.log(res);
+      // });
 
-// readStream.pipe(stream);
+      // const filePath = '../public/images/'+image;
+      // const readStream = fs.createReadStream(filePath);
+
+      // readStream.pipe(stream);
 
       // // GENERATE 
       // const url = cloudinary.url("plans/plan_desc_image", {
@@ -259,7 +259,7 @@ module.exports = {
       // });
     } catch (error) {
       res.status(500).send(`Error ${error.errorMessage}`)
-      
+
     }
   }
 
