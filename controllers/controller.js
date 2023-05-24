@@ -120,7 +120,7 @@ module.exports = {
           return res.status(503).send(`El campo "Name" como minimo debe de contner 2 caracteres y como maximo 15 caracteres`);
         }
       } else {
-        return res.status(501).send(`El campo "Name" no debe de estar vacio ${updates.name}`);
+        return res.status(501).send(`El campo "Name" no debe de estar vacio ${updates}`);
       }
       if (notEmpty(updates.description)) {
 
