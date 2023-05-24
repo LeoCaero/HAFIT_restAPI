@@ -11,6 +11,7 @@ const path = require("path");
 const fs = require("fs");
 const cloudinary = require('cloudinary').v2;
 const cors = require('cors');
+const { verifyToken, testHandler } = require('./token');
 
 module.exports = router;
 
@@ -33,15 +34,25 @@ module.exports = router;
  *       500:
  *         description: Internal server error
  */
-router.get("/all", async (req, res) => {
+// router.get("/all", async (req, res) => {
+//   try {
+//     const data = await Plan.find();
+//     res.json(data);
+//   } catch (error) {
+//     res.status(500).json({ message: error.message });
+//   }
+// });
+
+router.get("/all", verifyToken, async (req, res, next) => {
   try {
     const data = await Plan.find();
-    res.json(data);
+    req.data = data;
+    console.log(req.headers);
+    next();
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
-});
-
+}, testHandler);
 
 /**
  * @swagger

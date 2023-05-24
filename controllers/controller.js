@@ -54,7 +54,7 @@ module.exports = {
   deleteBy: async function (model, req, res) {
     let modelName;
     try {
-      let data = req.query.data;
+      let data = req.query.data ;
       let deleteBy = req.query.deleteBy;
       let query = {};
 
@@ -106,27 +106,53 @@ module.exports = {
       let modelName = model.modelName.charAt(0).toLowerCase() + model.modelName.slice(1);
       let modelId = modelName + "Id";
       let { [modelId]: id, ...updates } = req.query || req.body;
-          if (notEmpty(updates.name)) {   
-            if (!minAndMaxCharacter(updates.name,2,15)) {
-              return res.status(503).send(`El campo "Name" como minimo debe de contner 2 caracteres y como maximo 15 caracteres`);
-            } 
-        }else{
-          return res.status(501).send(`El campo "Name" no debe de estar vacio`);
-        }
-        if (notEmpty(updates.description)) {
+      //     if (updates.time) {
+      //       if(notEmpty(updates.time)){
+      //         if (!isNumeric(updates.time)) {
+      //             return res.status(502).send(`El campo time debe de ser númerico`);
+      //         }
+      //       }else{
+      //         return res.status(501).send(`El campo time debe de contener como mínimo 1 caracter`)
+      //       }
+      //     }
+      //     if (notEmpty(updates.name)) {   
+      //       if (!minAndMaxCharacter(updates.name,2,15)) {
+      //         return res.status(503).send(`El campo "Name" como minimo debe de contner 2 caracteres y como maximo 15 caracteres`);
+      //       } 
+      //   }else{
+      //     return res.status(501).send(`El campo "Name" no debe de estar vacio`);
+      //   }
+      //   if (notEmpty(updates.description)) {
           
-      }else{
-        return res.status(501).send(`El campo "Description" no debe de estar vacio`);
-      }
-      if (!isNumeric(id)) {
-        return res.status(502).send(`El ${modelId} debe de ser un número`);
-      }
+      // }else{
+      //   return res.status(501).send(`El campo "Description" no debe de estar vacio`);
+      // }
+      // if (!isNumeric(id)) {
+      //   return res.status(502).send(`El ${modelId} debe de ser un número`);
+      // }
       const updatedDoc = await model.findOneAndUpdate({ [modelId]: id }, updates, {
         new: true,
         // runValidators: true,
       });
 
       res.status(200).json(updatedDoc);
+    } catch (error) {
+      res.status(400).json({ message: error.message });
+    }
+  },
+  editType: async function (model, req, res) {
+    try {
+      
+      let modelName = model.modelName.charAt(0).toLowerCase() + model.modelName.slice(1);
+      let modelId = modelName + "Id";
+      let { [modelId]: id, ...updates } = req.query || req.body;
+          
+      const updatedDoc = await model.findOneAndUpdate({ [modelId]: id }, updates, {
+        // new: true,
+        // runValidators: true,
+      });
+
+      res.status(200).json({updatedDoc});
     } catch (error) {
       res.status(400).json({ message: error.message });
     }

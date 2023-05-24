@@ -57,7 +57,11 @@ const userSchema = new Schema(
       required: false,
       unique: false
       }
-    ]
+    ],
+    token:{
+      type: String,
+      required: false
+    }
   },
   { collection: "User" }
 );

@@ -2,7 +2,7 @@ const express = require("express");
 const Exercice = require("../models/exercice");
 const router = express.Router();
 const {searchBy,deleteBy,autoincrement,editBy} = require ('../controllers/controller');
-const {isAlphabet, notEmpty,minAndMaxCharacter} = require ('../utils/validations');
+const {isAlphabet, notEmpty,minAndMaxCharacter,isNumeric} = require ('../utils/validations');
 const User   = require("../models/user");
 
 module.exports = router;
@@ -93,34 +93,32 @@ router.post('/add',async(req,res)=>{
     
         const exerciceId = await autoincrement(Exercice,'exerciceId');
 
-    // if (notEmpty(description)) {
-    //     if (isAlphabet(description)) {
-    //       if (!minAndMaxCharacter(description,2,10)) {
-    //         return res.status(503).send(`El campo description como minimo debe de contner 2 caracteres y como maximo 10 caracteres`);
-    //       }
-    //     }else{
-    //       return res.status(502).send(`Debe de contener solo letras. Valor escrito '${description}'`);
-    //     }
-    //   }else{
-    //     return res.status(501).send(`El campo description no debe de estar vacio`);
-    //   }
-    //   if(notEmpty(time)){
-    //     if (!isNumeric(time)) {
-    //         return res.status(502).send(`El campo time debe de ser númerico`);
-    //     }
-    //   }else{
-    //     return res.status(501).send(`El campo time debe de contener como mínimo 1 caracter`)
-    //   }
+    if (notEmpty(description)) {
+          if (!minAndMaxCharacter(description,2,250)) {
+            return res.status(503).send(`El campo description como minimo debe de contner 2 caracteres y como maximo 10 caracteres`);
+          }
+      }else{
+        return res.status(501).send(`El campo description no debe de estar vacio`);
+      }
+
+      if(notEmpty(time)){
+        if (!isNumeric(time)) {
+            return res.status(502).send(`El campo time debe de ser númerico`);
+        }
+      }else{
+        return res.status(501).send(`El campo time debe de contener como mínimo 1 caracter`)
+      }
       let newExercice = new Exercice({
           name,
           exerciceId,
           description,
+          featuredImg,
           time,
       });
       const savedExercice = await newExercice.save();
-      res.status(201).send(`El ejercico ${newExercice.name} con id ${newExercice.exerciceId} se ha añadido correctamente`);
+      res.status(201).json(savedExercice)
      } catch (error) {
-        res.stauts(500).send(`Error en añadir el ejercico`)
+      res.status(500).json({message: error.message});
     }
 });
 /**

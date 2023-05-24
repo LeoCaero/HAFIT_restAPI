@@ -4,7 +4,7 @@ const User   = require("../models/user");
 const Plan = require("../models/plan"); 
 const Exercice = require("../models/exercice");
 const errors = require("../utils/errorMessages");
-const { searchBy, deleteBy, editBy, autoincrement } = require("../controllers/controller");
+const { searchBy, deleteBy, editBy, autoincrement,editType } = require("../controllers/controller");
 const Product = require("../models/product");
 
 module.exports = router;
@@ -218,6 +218,10 @@ router.put("/edit", async (req, res) => {
   await editBy(User, req, res);
 });
 
+router.put("/editType", async (req, res) => {
+  await editType(User, req, res);
+});
+
 router.put("/cart", async (req, res) => {
   try {
     const { userId, productId, action, quantity } = req.body;
@@ -325,8 +329,8 @@ router.put("/deletePlans", async (req, res) => {
 router.put("/deleteExercices", async (req, res) => {
   try {
     const { userId, exerciceId } = req.body;
-    const exercice = await Plan.findOne({exerciceId:exerciceId});
-    console.log('Delete plan ------------------->\n',exercice)
+    const exercice = await Exercice.findOne({exerciceId:exerciceId});
+    console.log('Delete exercice ------------------->\n',exercice)
     if (!exercice) {
       throw new Error("Exercice no encontrado");
     }

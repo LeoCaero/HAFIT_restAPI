@@ -6,6 +6,7 @@ const usersRouter = require('./routes/user');
 const productsRouter = require('./routes/product');
 const plansRouter = require('./routes/plan');
 const exercicesRouter = require('./routes/exercice');
+const { verifyToken, testHandler, tokenRouter } = require('./routes/token');
 
 
 
@@ -29,6 +30,9 @@ app.use('/api/user', usersRouter);
 app.use('/api/product', productsRouter);
 app.use('/api/plan',plansRouter);
 app.use('/api/exercice',exercicesRouter);
+app.use('/api/token', tokenRouter);
+// Protected Route
+app.get('/api/token', verifyToken, testHandler);
 
 // Database Connection
 connectToDatabase();
