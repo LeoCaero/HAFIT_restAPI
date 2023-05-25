@@ -34,25 +34,25 @@ module.exports = router;
  *       500:
  *         description: Internal server error
  */
-// router.get("/all", async (req, res) => {
-//   try {
-//     const data = await Plan.find();
-//     res.json(data);
-//   } catch (error) {
-//     res.status(500).json({ message: error.message });
-//   }
-// });
-
-router.get("/all", verifyToken, async (req, res, next) => {
+router.get("/all", async (req, res) => {
   try {
     const data = await Plan.find();
-    req.data = data;
-    console.log(req.headers);
-    next();
+    res.json(data);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
-}, testHandler);
+});
+
+// router.get("/all", verifyToken, async (req, res, next) => {
+//   try {
+//     const data = await Plan.find();
+//     req.data = data;
+//     console.log(req.headers);
+//     next();
+//   } catch (error) {
+//     res.status(500).json({ message: error.message });
+//   }
+// }, testHandler);
 
 /**
  * @swagger

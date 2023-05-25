@@ -4,10 +4,10 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 
 tokenRouter.post("/login", async (req, res) => {
-  const { userId } = req.body;
+  const { auth_token } = req.body;
 
   try {
-    const user = await User.findOne({ userId });
+    const user = await User.findOne({ auth_token });
 
     if (!user) {
       return res.status(401).json({ error: "User not found" });
@@ -55,8 +55,8 @@ const testHandler = (req, res) => {
     if (err) {
       res.sendStatus(403);
     } else {
-      console.log(authData);
-      if (authData.user.userId == req.headers["userid"]) {
+  
+      if (authData.user.auth_token == req.headers["userid"]) {
         const data = req.data;
         
         res.json({

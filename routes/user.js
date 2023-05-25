@@ -82,12 +82,13 @@ router.get("/all", async (req, res) => {
  */
 router.post("/add", async (req, res) => {
   try {
-    const { name, email, type } = req.body;
+    const { name, email, type, auth_token } = req.body;
 
     const newUser = new User({
       name,
       email,
       type,
+      auth_token
     });
 
     const savedUser = await newUser.save();
