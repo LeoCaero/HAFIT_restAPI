@@ -26,6 +26,10 @@ const exerciceSchema = new mongoose.Schema({
     ref: 'User',
     required: false
   },
+  view:{
+    type: Number,
+    default: 0
+  }
 }, { collection: 'Exercice' });
 
 

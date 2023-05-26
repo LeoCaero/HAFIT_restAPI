@@ -106,6 +106,7 @@ module.exports = {
       let modelName = model.modelName.charAt(0).toLowerCase() + model.modelName.slice(1);
       let modelId = modelName + "Id";
       let { [modelId]: id, ...updates } = req.query || req.body;
+      console.log(updates);
       if (updates.time) {
         if (notEmpty(updates.time)) {
           if (!isNumeric(updates.time)) {
@@ -115,6 +116,7 @@ module.exports = {
           return res.status(501).send(`El campo time debe de contener como mínimo 1 caracter`)
         }
       }
+      if (updates.name) {
       if (notEmpty(updates.name)) {
         if (!minAndMaxCharacter(updates.name, 2, 15)) {
           return res.status(503).send(`El campo "Name" como minimo debe de contner 2 caracteres y como maximo 15 caracteres`);
@@ -123,14 +125,19 @@ module.exports = {
         let updatesJson = JSON.stringify(updates)
         return res.status(501).send(`El campo "Name" no debe de estar vacio ${updatesJson}`);
       }
+    }
+    if (updates.description) {
       if (notEmpty(updates.description)) {
 
       } else {
         return res.status(501).send(`El campo "Description" no debe de estar vacio`);
       }
+    }
+    if (updates.id) {
       if (!isNumeric(id)) {
         return res.status(502).send(`El ${modelId} debe de ser un número`);
       }
+    }
       const updatedDoc = await model.findOneAndUpdate({ [modelId]: id }, updates, {
         new: true,
         // runValidators: true,
