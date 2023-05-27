@@ -84,29 +84,29 @@ router.post('/add',async(req,res)=>{
         let _id = req.body._id || req.query._id;
         
         if (notEmpty(name)) {   
-              if (!minAndMaxCharacter(name,2,10)) {
-                return res.status(503).send(`El campo name como minimo debe de contner 2 caracteres y como maximo 10 caracteres`);
+              if (!minAndMaxCharacter(name,2,15)) {
+                return res.status(503).send(`El campo "Nombre" como minimo debe de contner 2 caracteres y como maximo 10 caracteres`);
               }
           }else{
-            return res.status(501).send(`El campo name no debe de estar vacio`);
+            return res.status(501).send(`El campo "Nombre" no debe de estar vacio`);
           }
     
         const exerciceId = await autoincrement(Exercice,'exerciceId');
 
     if (notEmpty(description)) {
           if (!minAndMaxCharacter(description,2,250)) {
-            return res.status(503).send(`El campo description como minimo debe de contner 2 caracteres y como maximo 10 caracteres`);
+            return res.status(503).send(`El campo "Descripción" como minimo debe de contner 2 caracteres y como maximo 10 caracteres`);
           }
       }else{
-        return res.status(501).send(`El campo description no debe de estar vacio`);
+        return res.status(501).send(`El campo "Descripción" no debe de estar vacio`);
       }
 
       if(notEmpty(time)){
         if (!isNumeric(time)) {
-            return res.status(502).send(`El campo time debe de ser númerico`);
+            return res.status(502).send(`El campo "Tiempo estimado" debe de ser númerico`);
         }
       }else{
-        return res.status(501).send(`El campo time debe de contener como mínimo 1 caracter`)
+        return res.status(501).send(`El campo "Timepo estimado" debe de contener como mínimo 1 caracter`)
       }
       let newExercice = new Exercice({
           name,

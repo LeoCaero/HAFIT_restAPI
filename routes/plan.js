@@ -105,15 +105,15 @@ router.post("/add",async (req, res) => {
     
     if (notEmpty(name)) {   
         if (!minAndMaxCharacter(name,2,15)) {
-          return res.status(503).send(`El campo "Name" como minimo debe de contner 2 caracteres y como maximo 15 caracteres`);
+          return res.status(503).send(`El campo "Nombre" como minimo debe de contner 2 caracteres y como maximo 15 caracteres`);
         }
     }else{
-      return res.status(501).send(`El campo "Name" no debe de estar vacio`);
+      return res.status(501).send(`El campo "Nombre" no debe de estar vacio`);
     }
 
     if (notEmpty(description)) {
     }else{
-      return res.status(501).send(`El campo "Description" no debe de estar vacio`);
+      return res.status(501).send(`El campo "Descripción" no debe de estar vacio`);
     }
 
     let planId = await autoincrement(Plan,'planId');
@@ -299,63 +299,7 @@ router.put('/edit',async (req,res) =>{
     }
   })
    
-/**
- * @swagger
- * /api/plan/uploadImages:
- *   post:
- *     summary: Upload images plan
- *     tags: [Plans]
- *     description: Upload images  plan
- *     consumes:
- *       - "multipart/form-data"
- *     produces:
- *       - "application/json"
- *     parameters:
- *       - in: formData
- *         name: file
- *         type: file
- *         description: "Archivo de imagen para subir"
- *         required: false
- *     responses:
- *       200:
- *         description: A user object
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Plan'
- *       404:
- *         description: Plan not found
- *       500:
- *         description: Internal server error
- */
-  // router.post('/uploadImages',upload.single('featuredImg') ,async(req,res)=>{
-  //   // return await uploadImage(req,res);
-  //   console.log(req.file,req.body)
-  // })
 
-  // router.post('/uploadImages',upload.single('featuredImg') ,async(req,res)=>{
-  //   // return await uploadImage(req,res);
-  //   // console.log(req.file,req.body)
-  // })
-
-  router.post('/uploadImages', upload.single('featuredImg'), (req, res) => {
-    
-    cloudinary.config({
-      cloud_name: process.env.CLOUD_NAME,
-      api_key: process.env.CLOUD_API_KEY,
-      api_secret: process.env.CLOUD_API_SECRET
-    });
-    const file = req.featuredImg;
-    console.log(file)
-    cloudinary.uploader.upload(file.path, (error, result) => {
-      if (error) {
-        res.status(500).json({ error });
-      } else {
-        res.header('Access-Control-Allow-Origin', '*').json(result);
-        // res.json(result);
-      }
-    });
-  });
 
   router.put("/users", async (req, res) => {
     try {
