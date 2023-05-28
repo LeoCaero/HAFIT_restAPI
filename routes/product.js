@@ -41,6 +41,9 @@ router.get("/all", async (req, res) => {
   }
 });
 
+
+
+
 /**
  * @swagger
  * /api/product/add:

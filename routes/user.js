@@ -4,6 +4,7 @@ const User = require("../models/user");
 const errors = require("../utils/errorMessages");
 const { searchBy, deleteBy, editBy } = require("../controllers/controller");
 const Product = require("../models/product");
+const { verifyToken, testHandler } = require('./token');
 
 module.exports = router;
 
@@ -26,14 +27,17 @@ module.exports = router;
  *       500:
  *         description: Internal server error
  */
-router.get("/all", async (req, res) => {
+router.get("/all", verifyToken, async (req, res, next) => {
   try {
     const data = await User.find();
-    res.json(data);
+    req.data = data;
+    next();
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
-});
+}, testHandler);
+
+
 
 /**
  * @swagger

@@ -37,9 +37,13 @@ const userSchema = new Schema(
         type: Product.schema,
         ref: "Product",
         required: false,
-        unique: true
-      }
-    ]
+        unique: true,
+      },
+    ],
+    auth_token: {
+      type: String,
+      required: false,
+    },
   },
   { collection: "User" }
 );
@@ -51,10 +55,10 @@ userSchema.pre("save", function (next) {
     return User.findOne()
       .sort("-userId")
       .exec()
-      .then(lastUser => {
+      .then((lastUser) => {
         user.userId = lastUser ? lastUser.userId + 1 : 1;
       })
-      .catch(err => {
+      .catch((err) => {
         throw err;
       });
   } else {
@@ -62,11 +66,6 @@ userSchema.pre("save", function (next) {
   }
 });
 
-
 const User = mongoose.model("User", userSchema);
 
-
-
 module.exports = User;
-
-

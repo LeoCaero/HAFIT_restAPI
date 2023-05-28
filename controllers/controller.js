@@ -1,7 +1,5 @@
 const errors = require("../utils/errorMessages");
 const { isAlphabet,isNumeric,notEmpty,minAndMaxCharacter } = require("../utils/validations");
-const cloudinary = require('cloudinary').v2;
-
 
 module.exports = {
   autoincrement: async function (model, fieldName) {
@@ -12,13 +10,6 @@ module.exports = {
     let data = req.query.data;
     let search = req.query.search;
     let query = {};
-    // if (notEmpty(data)) {   
-    //     if (!minAndMaxCharacter(data,2,10)) {
-    //       return res.status(503).send(`El campo ${data} como minimo debe de contner 2 caracteres y como maximo 10 caracteres`);
-    //     }
-    //  }else{
-    //     return res.status(501).send(`El campo ${data} no debe de estar vacio`);
-    //   }
     if (!search || !data) {
       if (req.body && Object.keys(req.body).length) {
         search = req.body.search;
@@ -132,45 +123,5 @@ module.exports = {
       } catch (error) {
         res.send(`Error ${error.message}`)
       }
-  },
-  uploadImage: async function (req, res) {
-    try {
-        // CONFIGURATION 
-        cloudinary.config({
-          cloud_name: "dlomgjt1k",
-          api_key: "447613727928719",
-          api_secret: "ZrUxDk1iFEw57psqVsHVCLgjFMQ"
-        });
-
-        // console.log('Featured Image: ',req.quey.featuredImg)
-        // let image = req.quey.featuredImg ;
-        // UPLOAD
-        let dateOb = new Date();
-        let date = ("0" + dateOb.getDate()).slice(-2);
-        let month = ("0" + (dateOb.getMonth() + 1)).slice(-2);
-        let year = dateOb.getFullYear();
-        let hours = dateOb.getHours();
-        let minuts = dateOb.getMinutes();
-        let seconds = dateOb.getSeconds();
-
-        const result =  cloudinary.uploader.upload('https://upload.wikimedia.org/wikipedia/commons/a/ae/Olympic_flag.jpg', { public_id: "plans/"+date+"-"+month+"-"+year+"_"+hours+"_"+minuts+"_"+seconds });
-        result.then((data) => {
-          console.log(data);
-          console.log(data.secure_url);
-          res.status(200).json({ url: data.secure_url })
-        }).catch((err) => {
-          console.log(err);
-        });
-
-        // // GENERATE 
-        // const url = cloudinary.url("plans/plan_desc_image", {
-        //     width: 100,
-        //     height: 150,
-        //     crop: 'scale'
-        // });
-    } catch (error) {
-        res.send(`Error ${error.errorMessage}`)
-    }
-}
-
+  }
 };
