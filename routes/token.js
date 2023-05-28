@@ -16,7 +16,6 @@ tokenRouter.post("/login", async (req, res) => {
     if (user.token) {
       user.token = null;
     }
-
     jwt.sign({ user }, "secretkey", (err, token) => {
       if (err) {
         return res.status(500).json({ error: "Internal server error" });

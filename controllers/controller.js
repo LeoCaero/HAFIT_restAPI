@@ -1,11 +1,13 @@
 const errors = require("../utils/errorMessages");
-const { isAlphabet,isNumeric,notEmpty,minAndMaxCharacter } = require("../utils/validations");
+const { isAlphabet, isNumeric, notEmpty, minAndMaxCharacter } = require("../utils/validations");
+
 
 module.exports = {
   autoincrement: async function (model, fieldName) {
     let result = await model.findOne().sort({ [fieldName]: -1 });
     return result ? result[fieldName] + 1 : 1;
   },
+
   searchBy: async function (model, req, res) {
     let data = req.query.data;
     let search = req.query.search;
@@ -61,7 +63,7 @@ module.exports = {
       query[deleteBy] = data;
 
       let result = await model.findOneAndDelete(query);
-       modelName =
+      modelName =
         model.modelName.charAt(0).toLowerCase() + model.modelName.slice(1);
       if (!result) {
         res
@@ -72,8 +74,8 @@ module.exports = {
       } else {
         res
           .status(200)
-          .send(
-            `El ${modelName.toUpperCase()} "${result.name}" ha sido eliminado`
+          .json(
+            { message: `El ${modelName.toUpperCase()} "${result.name}" ha sido eliminado` }
           );
       }
     } catch (err) {
@@ -85,43 +87,79 @@ module.exports = {
     }
   },
   editBy: async function (model, req, res) {
+
     try {
+
       let modelName = model.modelName.charAt(0).toLowerCase() + model.modelName.slice(1);
-      let modelId = modelName+"Id";
-      let { [modelId]: id, ...updates } = req.query;
-      console.log(updates)
-      if (notEmpty(updates.name)) {   
-        if (!minAndMaxCharacter(updates.name,2,15)) {
-          return res.status(503).send(`El campo "Name" como minimo debe de contner 2 caracteres y como maximo 15 caracteres`);
+      let modelId = modelName + "Id";
+      let { [modelId]: id, ...updates } = req.query || req.body;
+      console.log(updates);
+      if (updates.time) {
+        if (notEmpty(updates.time)) {
+          if (!isNumeric(updates.time)) {
+            return res.status(502).send(`El campo "Tiempo estimado"" debe de ser númerico`);
+          }
+        } else {
+          return res.status(501).send(`El campo "Tiempo estimado" debe de contener como mínimo 1 caracter`)
         }
-    }else{
-      return res.status(501).send(`El campo "Name" no debe de estar vacio`);
-    }
-    if (notEmpty(updates.description)) {
-      if (!minAndMaxCharacter(updates.description,2,200)) {
-        return res.status(503).send(`El campo "Description" como minimo debe de contner 2 caracteres y como maximo 200 caracteres`);
       }
-  }else{
-    return res.status(501).send(`El campo "Description" no debe de estar vacio`);
-  }
-      if(!isNumeric(id)){
+      if (updates.name) {
+      if (notEmpty(updates.name)) {
+        if (!minAndMaxCharacter(updates.name, 2, 15)) {
+          return res.status(503).send(`El campo "Nombre" como minimo debe de contner 2 caracteres y como maximo 15 caracteres`);
+        }
+      } else {
+        let updatesJson = JSON.stringify(updates)
+        return res.status(501).send(`El campo "Nombre" no debe de estar vacio ${updatesJson}`);
+      }
+    }
+    if (updates.description) {
+      if (notEmpty(updates.description)) {
+
+      } else {
+        return res.status(501).send(`El campo "Descripción" no debe de estar vacio`);
+      }
+    }
+    if (updates.id) {
+      if (!isNumeric(id)) {
         return res.status(502).send(`El ${modelId} debe de ser un número`);
       }
+    }
       const updatedDoc = await model.findOneAndUpdate({ [modelId]: id }, updates, {
         new: true,
         // runValidators: true,
       });
+
       res.status(200).json(updatedDoc);
     } catch (error) {
       res.status(400).json({ message: error.message });
     }
   },
-  filter: async function (filterBy,model,req,res){
-      try {
-        let filter = req.query.filter || req.body.filter
-        db.model.find({[filterBy]: { $regex: new RegExp(filter, 'i')}})
-      } catch (error) {
-        res.send(`Error ${error.message}`)
-      }
-  }
+  editType: async function (model, req, res) {
+    try {
+
+      let modelName = model.modelName.charAt(0).toLowerCase() + model.modelName.slice(1);
+      let modelId = modelName + "Id";
+      let { [modelId]: id, ...updates } = req.query || req.body;
+
+      const updatedDoc = await model.findOneAndUpdate({ [modelId]: id }, updates, {
+        // new: true,
+        // runValidators: true,
+      });
+
+      res.status(200).json({ updatedDoc });
+    } catch (error) {
+      res.status(400).json({ message: error.message });
+    }
+  },
+  filter: async function (filterBy, model, req, res) {
+    try {
+      let filter = req.query.filter || req.body.filter
+      db.model.find({ [filterBy]: { $regex: new RegExp(filter, 'i') } })
+    } catch (error) {
+      res.send(`Error ${error.message}`)
+    }
+  },
+
+
 };

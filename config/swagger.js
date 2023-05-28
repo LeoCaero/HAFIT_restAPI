@@ -136,6 +136,9 @@ const options = {
             featuredImg: {
               type: 'string',
               description: 'Featured image from plan'
+            },
+            user:{
+              type:'user'
             }
           }
         },

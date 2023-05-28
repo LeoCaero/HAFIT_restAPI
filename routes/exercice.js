@@ -2,7 +2,8 @@ const express = require("express");
 const Exercice = require("../models/exercice");
 const router = express.Router();
 const {searchBy,deleteBy,autoincrement,editBy} = require ('../controllers/controller');
-const {isAlphabet, notEmpty,minAndMaxCharacter} = require ('../utils/validations');
+const {isAlphabet, notEmpty,minAndMaxCharacter,isNumeric} = require ('../utils/validations');
+const User   = require("../models/user");
 
 module.exports = router;
 
@@ -76,49 +77,48 @@ router.get('/all',async(req,res) =>{
  */
 router.post('/add',async(req,res)=>{
     try {
-        let {name,exerciceId,description,time} = req.query;
-        // if (notEmpty(name)) {   
-        //     if (isAlphabet(name)) {
-        //       if (!minAndMaxCharacter(name,2,10)) {
-        //         return res.status(503).send(`El campo name como minimo debe de contner 2 caracteres y como maximo 10 caracteres`);
-        //       }
-        //     }else{
-        //       return res.status(502).send(`Debe de contener solo letras. Valor escrito '${name}'`);
-        //     }
-        //   }else{
-        //     return res.status(501).send(`El campo name no debe de estar vacio`);
-        //   }
+        let time = req.body.time || req.query;
+        let name = req.body.name || req.query.name;
+        let description = req.body.description || req.query.description;
+        let featuredImg = req.body.featuredImg || req.query.featuredImg;
+        let _id = req.body._id || req.query._id;
+        
+        if (notEmpty(name)) {   
+              if (!minAndMaxCharacter(name,2,15)) {
+                return res.status(503).send(`El campo "Nombre" como minimo debe de contner 2 caracteres y como maximo 10 caracteres`);
+              }
+          }else{
+            return res.status(501).send(`El campo "Nombre" no debe de estar vacio`);
+          }
     
-    exerciceId = await autoincrement(Exercice,'exerciceId');
+        const exerciceId = await autoincrement(Exercice,'exerciceId');
 
-    // if (notEmpty(description)) {
-    //     if (isAlphabet(description)) {
-    //       if (!minAndMaxCharacter(description,2,10)) {
-    //         return res.status(503).send(`El campo description como minimo debe de contner 2 caracteres y como maximo 10 caracteres`);
-    //       }
-    //     }else{
-    //       return res.status(502).send(`Debe de contener solo letras. Valor escrito '${description}'`);
-    //     }
-    //   }else{
-    //     return res.status(501).send(`El campo description no debe de estar vacio`);
-    //   }
-    //   if(notEmpty(time)){
-    //     if (!isNumeric(time)) {
-    //         return res.status(502).send(`El campo time debe de ser númerico`);
-    //     }
-    //   }else{
-    //     return res.status(501).send(`El campo time debe de contener como mínimo 1 caracter`)
-    //   }
+    if (notEmpty(description)) {
+          if (!minAndMaxCharacter(description,2,250)) {
+            return res.status(503).send(`El campo "Descripción" como minimo debe de contner 2 caracteres y como maximo 10 caracteres`);
+          }
+      }else{
+        return res.status(501).send(`El campo "Descripción" no debe de estar vacio`);
+      }
+
+      if(notEmpty(time)){
+        if (!isNumeric(time)) {
+            return res.status(502).send(`El campo "Tiempo estimado" debe de ser númerico`);
+        }
+      }else{
+        return res.status(501).send(`El campo "Timepo estimado" debe de contener como mínimo 1 caracter`)
+      }
       let newExercice = new Exercice({
           name,
           exerciceId,
           description,
+          featuredImg,
           time,
       });
       const savedExercice = await newExercice.save();
-      res.status(201).send(`El ejercico ${newExercice.name} con id ${newExercice.exerciceId} se ha añadido correctamente`);
+      res.status(201).json(savedExercice)
      } catch (error) {
-        res.stauts(500).send(`Error en añadir el ejercico`)
+      res.status(500).json({message: error.message});
     }
 });
 /**
@@ -237,3 +237,22 @@ router.get("/search", async (req, res) => {
   router.put('/edit',async (req,res) =>{
       await editBy(Exercice,req,res);
     });
+
+    router.put("/users", async (req, res) => {
+        try {
+          const { userId, exerciceId } = req.body;
+          const user = await User.findById(userId);
+          console.log(user)
+          if (!user) {
+            throw new Error("Exercice no encontrado");
+          }
+      
+          const exercice = await Exercice.findOneAndUpdate({exerciceId:exerciceId},{$push:{user:user}},{new:true});
+          console.log(exercice)
+          updatedPlan = await exercice.save();
+      
+          res.status(200).json(`Exercice Upated ${updatedPlan}`);
+        } catch (error) {
+          res.status(400).json({ message: error.message });
+        }
+      });

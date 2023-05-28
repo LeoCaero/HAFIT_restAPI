@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const Product = require("./product");
+const Plan = require("../models/plan");
+const Exercice = require("../models/exercice");
 
 const userTypeEnum = ["client", "admin", "soci", "treballador"];
 
@@ -37,17 +39,32 @@ const userSchema = new Schema(
         type: Product.schema,
         ref: "Product",
         required: false,
-        unique: true,
-      },
+        unique: true
+      }
+    ],
+    plans: [
+      {
+        type: Plan.schema,
+        ref: "Plan",
+        required: false,
+        unique: false
+      }
+    ],
+    exercices: [
+      {
+        type: Exercice.schema,
+        ref: "Exercice",
+        required: false,
+        unique: false
+      }
     ],
     auth_token: {
       type: String,
-      required: false,
+      required: false
     },
   },
   { collection: "User" }
 );
-
 // AUTOINCREMENT
 userSchema.pre("save", function (next) {
   const user = this;

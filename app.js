@@ -17,6 +17,8 @@ app.use(cors());
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static('public'));
+app.use('/images', express.static('images'));
 
 // Swagger
 swaggerConfig(app);
@@ -26,6 +28,9 @@ app.use('/api/user', usersRouter);
 app.use('/api/product', productsRouter);
 app.use('/api/plan',plansRouter);
 app.use('/api/exercice',exercicesRouter);
+app.use('/api/token', tokenRouter);
+// Protected Route
+app.get('/api/token', verifyToken, testHandler);
 app.use('/api/token', tokenRouter);
 // Protected Route
 app.get('/api/token', verifyToken, testHandler);
