@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const Product = require("./product");
+const Plan = require("../models/plan");
+const Exercice = require("../models/exercice");
 
 const userTypeEnum = ["client", "admin", "soci", "treballador"];
 
@@ -39,11 +41,30 @@ const userSchema = new Schema(
         required: false,
         unique: true
       }
-    ]
+    ],
+    plans: [
+      {
+        type: Plan.schema,
+        ref: "Plan",
+        required: false,
+        unique: false
+      }
+    ],
+    exercices: [
+      {
+        type: Exercice.schema,
+        ref: "Exercice",
+        required: false,
+        unique: false
+      }
+    ],
+    auth_token: {
+      type: String,
+      required: false
+    },
   },
   { collection: "User" }
 );
-
 // AUTOINCREMENT
 userSchema.pre("save", function (next) {
   const user = this;
@@ -51,10 +72,10 @@ userSchema.pre("save", function (next) {
     return User.findOne()
       .sort("-userId")
       .exec()
-      .then(lastUser => {
+      .then((lastUser) => {
         user.userId = lastUser ? lastUser.userId + 1 : 1;
       })
-      .catch(err => {
+      .catch((err) => {
         throw err;
       });
   } else {
@@ -62,11 +83,6 @@ userSchema.pre("save", function (next) {
   }
 });
 
-
 const User = mongoose.model("User", userSchema);
 
-
-
 module.exports = User;
-
-

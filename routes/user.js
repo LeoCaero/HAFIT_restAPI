@@ -1,9 +1,12 @@
 const express = require("express");
 const router = express.Router();
-const User = require("../models/user");
+const User   = require("../models/user");
+const Plan = require("../models/plan"); 
+const Exercice = require("../models/exercice");
 const errors = require("../utils/errorMessages");
-const { searchBy, deleteBy, editBy } = require("../controllers/controller");
+const { searchBy, deleteBy, editBy, autoincrement,editType } = require("../controllers/controller");
 const Product = require("../models/product");
+const { verifyToken, testHandler } = require('./token');
 
 module.exports = router;
 
@@ -26,14 +29,17 @@ module.exports = router;
  *       500:
  *         description: Internal server error
  */
-router.get("/all", async (req, res) => {
+router.get("/all", verifyToken, async (req, res, next) => {
   try {
     const data = await User.find();
-    res.json(data);
+    req.data = data;
+    next();
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
-});
+}, testHandler);
+
+
 
 /**
  * @swagger
@@ -80,12 +86,13 @@ router.get("/all", async (req, res) => {
  */
 router.post("/add", async (req, res) => {
   try {
-    const { name, email, type } = req.body;
+    const { name, email, type, auth_token } = req.body;
 
     const newUser = new User({
       name,
       email,
       type,
+      auth_token
     });
 
     const savedUser = await newUser.save();
@@ -216,6 +223,10 @@ router.put("/edit", async (req, res) => {
   await editBy(User, req, res);
 });
 
+router.put("/editType", async (req, res) => {
+  await editType(User, req, res);
+});
+
 router.put("/cart", async (req, res) => {
   try {
     const { userId, productId, action, quantity } = req.body;
@@ -258,6 +269,82 @@ router.put("/cart", async (req, res) => {
     }
 
     res.status(200).json(updatedUser);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+router.put("/plans", async (req, res) => {
+  try {
+    const { userId, planId } = req.body;
+    const plan = await Plan.find({planId:planId});
+    console.log(plan)
+    if (!plan) {
+      throw new Error("Plan no encontrado");
+    }
+
+    const user = await User.findOneAndUpdate({userId:userId},{$push:{plans:plan}},{new:true});
+    console.log(user)
+    updatedUser = await user.save();
+
+    res.status(200).json(`User updated: ${updatedUser}`);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+router.put("/exercices", async (req, res) => {
+  try {
+    const { userId, exerciceId } = req.body;
+    const exercice = await Exercice.find({exerciceId:exerciceId});
+    console.log(exercice)
+    if (!exercice) {
+      throw new Error("Exercice no encontrado");
+    }
+
+    const user = await User.findOneAndUpdate({userId:userId},{$push:{exercices:exercice}},{new:true});
+    console.log(user)
+    updatedUser = await user.save();
+
+    res.status(200).json(`User updated: ${updatedUser}`);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+router.put("/deletePlans", async (req, res) => {
+  try {
+    const { userId, planId } = req.body;
+    const plan = await Plan.findOne({planId:planId});
+    console.log('Delete plan ------------------->\n',plan)
+    if (!plan) {
+      throw new Error("Plan no encontrado");
+    }
+
+    const user = await User.findOneAndUpdate({userId:userId},{$pull:{plans:{planId: plan.planId}}},{new:true});
+    console.log(user)
+    updatedUser = await user.save();
+
+    res.status(200).json(`User updated: ${updatedUser}`);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+router.put("/deleteExercices", async (req, res) => {
+  try {
+    const { userId, exerciceId } = req.body;
+    const exercice = await Exercice.findOne({exerciceId:exerciceId});
+    console.log('Delete exercice ------------------->\n',exercice)
+    if (!exercice) {
+      throw new Error("Exercice no encontrado");
+    }
+
+    const user = await User.findOneAndUpdate({userId:userId},{$pull:{exercices:{exercice: exercice.exerciceId}}},{new:true});
+    console.log(user)
+    updatedUser = await user.save();
+
+    res.status(200).json(`User updated: ${updatedUser}`);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }

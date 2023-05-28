@@ -6,17 +6,10 @@ const usersRouter = require('./routes/user');
 const productsRouter = require('./routes/product');
 const plansRouter = require('./routes/plan');
 const exercicesRouter = require('./routes/exercice');
-const cloudinary = require('cloudinary').v2;
+const { verifyToken, testHandler, tokenRouter } = require('./routes/token');
 
 
-// Cloudinary configuration 
-cloudinary.config({
-  cloud_name: "dlomgjt1k",
-  api_key: "447613727928719",
-  api_secret: "ZrUxDk1iFEw57psqVsHVCLgjFMQ"
-});
 const cors = require('cors');
-
 
 const app = express();
 
@@ -24,6 +17,8 @@ app.use(cors());
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static('public'));
+app.use('/images', express.static('images'));
 
 // Swagger
 swaggerConfig(app);
@@ -33,6 +28,12 @@ app.use('/api/user', usersRouter);
 app.use('/api/product', productsRouter);
 app.use('/api/plan',plansRouter);
 app.use('/api/exercice',exercicesRouter);
+app.use('/api/token', tokenRouter);
+// Protected Route
+app.get('/api/token', verifyToken, testHandler);
+app.use('/api/token', tokenRouter);
+// Protected Route
+app.get('/api/token', verifyToken, testHandler);
 
 // Database Connection
 connectToDatabase();
@@ -40,6 +41,6 @@ connectToDatabase();
 // Start Server
 const port = process.env.PORT || 8002;
 app.listen(port, () => {
-  console.log(`Server started at http://localhost:${port}`);
-  console.log(`Api documentation  at http://localhost:${port}/api-docs`);
+  // console.log(`Server started at http://localhost:${port}`);
+  console.log(`[LOCAL] Api documentation  at http://localhost:${port}/api-docs\n[HOST] Api documentation  at https://hafit-restapi-dwix.onrender.com/api-docs/`);
 });
