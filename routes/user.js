@@ -1,10 +1,10 @@
 const express = require("express");
 const router = express.Router();
-const User   = require("../models/user");
-const Plan = require("../models/plan"); 
+const User = require("../models/user");
+const Plan = require("../models/plan");
 const Exercice = require("../models/exercice");
 const errors = require("../utils/errorMessages");
-const { searchBy, deleteBy, editBy, autoincrement,editType } = require("../controllers/controller");
+const { searchBy, deleteBy, editBy, autoincrement, editType } = require("../controllers/controller");
 const Product = require("../models/product");
 const { verifyToken, testHandler } = require('./token');
 
@@ -231,15 +231,17 @@ router.put("/cart", async (req, res) => {
   try {
     const { userId, productId, action, quantity } = req.body;
 
-    let updatedUser;
+    if (!userId || !productId || !action || !quantity) {
+      throw new Error("Parámetros de entrada inválidos");
+    }
 
-    const product = await Product.findById(productId);
+    const product = await Product.findOne({ productId });
 
     if (!product) {
       throw new Error("Producto no encontrado");
     }
 
-    const user = await User.findById(userId);
+    const user = await User.findOne({ userId });
 
     const itemIndex = user.cartItems.findIndex(
       (item) => item.productId === productId
@@ -248,19 +250,16 @@ router.put("/cart", async (req, res) => {
     if (action === "add") {
       if (itemIndex >= 0) {
         user.cartItems[itemIndex].quantity += quantity;
-        updatedUser = await user.save();
       } else {
-        const cartItem = { ...product.toObject(), quantity: 1 };
-        updatedUser = await User.findByIdAndUpdate(
-          userId,
-          { $push: { cartItems: cartItem } },
-          { new: true }
-        );
+        const cartItem = { ...product.toObject(), quantity };
+        user.cartItems.push(cartItem);
       }
     } else if (action === "remove") {
       if (itemIndex >= 0) {
-        user.cartItems[itemIndex].quantity -= 1;
-        updatedUser = await user.save();
+        user.cartItems[itemIndex].quantity -= quantity;
+        if (user.cartItems[itemIndex].quantity <= 0) {
+          user.cartItems.splice(itemIndex, 1); 
+        }
       } else {
         throw new Error("El producto no está en el carrito");
       }
@@ -268,22 +267,25 @@ router.put("/cart", async (req, res) => {
       throw new Error("Acción no válida");
     }
 
+    const updatedUser = await user.save();
+
     res.status(200).json(updatedUser);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
 });
 
+
 router.put("/plans", async (req, res) => {
   try {
     const { userId, planId } = req.body;
-    const plan = await Plan.find({planId:planId});
+    const plan = await Plan.find({ planId: planId });
     console.log(plan)
     if (!plan) {
       throw new Error("Plan no encontrado");
     }
 
-    const user = await User.findOneAndUpdate({userId:userId},{$push:{plans:plan}},{new:true});
+    const user = await User.findOneAndUpdate({ userId: userId }, { $push: { plans: plan } }, { new: true });
     console.log(user)
     updatedUser = await user.save();
 
@@ -296,13 +298,13 @@ router.put("/plans", async (req, res) => {
 router.put("/exercices", async (req, res) => {
   try {
     const { userId, exerciceId } = req.body;
-    const exercice = await Exercice.find({exerciceId:exerciceId});
+    const exercice = await Exercice.find({ exerciceId: exerciceId });
     console.log(exercice)
     if (!exercice) {
       throw new Error("Exercice no encontrado");
     }
 
-    const user = await User.findOneAndUpdate({userId:userId},{$push:{exercices:exercice}},{new:true});
+    const user = await User.findOneAndUpdate({ userId: userId }, { $push: { exercices: exercice } }, { new: true });
     console.log(user)
     updatedUser = await user.save();
 
@@ -315,13 +317,12 @@ router.put("/exercices", async (req, res) => {
 router.put("/deletePlans", async (req, res) => {
   try {
     const { userId, planId } = req.body;
-    const plan = await Plan.findOne({planId:planId});
-    console.log('Delete plan ------------------->\n',plan)
+    const plan = await Plan.findOne({ planId: planId });
     if (!plan) {
       throw new Error("Plan no encontrado");
     }
 
-    const user = await User.findOneAndUpdate({userId:userId},{$pull:{plans:{planId: plan.planId}}},{new:true});
+    const user = await User.findOneAndUpdate({ userId: userId }, { $pull: { plans: { planId: plan.planId } } }, { new: true });
     console.log(user)
     updatedUser = await user.save();
 
@@ -334,13 +335,12 @@ router.put("/deletePlans", async (req, res) => {
 router.put("/deleteExercices", async (req, res) => {
   try {
     const { userId, exerciceId } = req.body;
-    const exercice = await Exercice.findOne({exerciceId:exerciceId});
-    console.log('Delete exercice ------------------->\n',exercice)
+    const exercice = await Exercice.findOne({ exerciceId: exerciceId });
     if (!exercice) {
       throw new Error("Exercice no encontrado");
     }
 
-    const user = await User.findOneAndUpdate({userId:userId},{$pull:{exercices:{exercice: exercice.exerciceId}}},{new:true});
+    const user = await User.findOneAndUpdate({ userId: userId }, { $pull: { exercices: { exercice: exercice.exerciceId } } }, { new: true });
     console.log(user)
     updatedUser = await user.save();
 
@@ -349,4 +349,3 @@ router.put("/deleteExercices", async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 });
-
