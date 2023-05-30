@@ -17,6 +17,10 @@ const userSchema = new Schema(
       type: String,
       required: true,
     },
+    biography: {
+      type: String,
+      required: false,
+    },
     email: {
       type: String,
       required: true,

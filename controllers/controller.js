@@ -92,6 +92,7 @@ module.exports = {
 
       let modelName = model.modelName.charAt(0).toLowerCase() + model.modelName.slice(1);
       let modelId = modelName + "Id";
+      console.log(req.body);
       let { [modelId]: id, ...updates } = req.query || req.body;
       console.log(updates);
       if (updates.time) {
@@ -129,7 +130,7 @@ module.exports = {
         new: true,
         // runValidators: true,
       });
-
+      console.log(updatedDoc);
       res.status(200).json(updatedDoc);
     } catch (error) {
       res.status(400).json({ message: error.message });
