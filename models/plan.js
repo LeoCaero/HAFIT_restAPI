@@ -1,5 +1,8 @@
 const mongoose = require("mongoose");
 const User = require("./user");
+const Product = require("./product")
+const userSchema = require("./user");
+const defaultValues = require("../utils/defaultValues");
   
 
 const planSchema = new mongoose.Schema({
@@ -26,6 +29,7 @@ const planSchema = new mongoose.Schema({
   view:{
     type: Number,
     default: 0
+  },
   }
   // autorId: {
   //     type: User.schema,
@@ -42,7 +46,7 @@ const planSchema = new mongoose.Schema({
   //   }
   // ]
   
-}, { collection: 'Plan' });
+, { collection: 'Plan' });
 
 
 const Plan = mongoose.model('Plan', planSchema);

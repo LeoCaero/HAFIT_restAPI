@@ -1,11 +1,17 @@
 const express = require("express");
 const router = express.Router();
-const {Plan} = require("../models/plan");
+const Plan = require("../models/plan");
+const User   = require("../models/user");
 const errors = require("../utils/errorMessages");
-
 const {searchBy,deleteBy,autoincrement,editBy, uploadImage} = require ('../controllers/controller');
 const {isAlphabet, notEmpty,minAndMaxCharacter} = require ('../utils/validations');
-
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/' });
+const path = require("path");
+const fs = require("fs");
+const cloudinary = require('cloudinary').v2;
+const cors = require('cors');
+const { verifyToken, testHandler } = require('./token');
 
 module.exports = router;
 
@@ -37,6 +43,16 @@ router.get("/all", async (req, res) => {
   }
 });
 
+// router.get("/all", verifyToken, async (req, res, next) => {
+//   try {
+//     const data = await Plan.find();
+//     req.data = data;
+//     console.log(req.headers);
+//     next();
+//   } catch (error) {
+//     res.status(500).json({ message: error.message });
+//   }
+// }, testHandler);
 
 /**
  * @swagger
@@ -81,33 +97,36 @@ router.get("/all", async (req, res) => {
  */
 router.post("/add",async (req, res) => {
   try {
-    let { name, planId, description,featuredImg } = req.query;
+  
+    let name = req.body.name || req.query.name;
+    let description = req.body.description || req.query.description;
+    let featuredImg = req.body.featuredImg || req.query.featuredImg;
+    let _id = req.body._id || req.query._id;
+    
     if (notEmpty(name)) {   
         if (!minAndMaxCharacter(name,2,15)) {
-          return res.status(503).send(`El campo "Name" como minimo debe de contner 2 caracteres y como maximo 15 caracteres`);
+          return res.status(503).send(`El campo "Nombre" como minimo debe de contner 2 caracteres y como maximo 15 caracteres`);
         }
     }else{
-      return res.status(501).send(`El campo "Name" no debe de estar vacio`);
+      return res.status(501).send(`El campo "Nombre" no debe de estar vacio`);
     }
 
     if (notEmpty(description)) {
-        if (!minAndMaxCharacter(description,2,200)) {
-          return res.status(503).send(`El campo "Description" como minimo debe de contner 2 caracteres y como maximo 200 caracteres`);
-        }
     }else{
-      return res.status(501).send(`El campo "Description" no debe de estar vacio`);
+      return res.status(501).send(`El campo "Descripción" no debe de estar vacio`);
     }
 
-    planId = await autoincrement(Plan,'planId');
-    let newPlan = new Plan({
+    let planId = await autoincrement(Plan,'planId');
+    const newPlan = new Plan({
+      _id,
       name,
-      planId,
       description,
+      planId,
       featuredImg
     });
-
+    
     const savedPlan = await newPlan.save();
-    res.status(201).send(`El plan ${newPlan.name} con id ${newPlan.planId} se añadido correctamente`);
+    res.status(201).json(savedPlan);
 
   } catch (error) {
     res.status(500).json({message: error.message});
@@ -225,6 +244,7 @@ router.delete("/delete", async (req, res) => {
  *         description: Internal server error
  */
 router.put('/edit',async (req,res) =>{
+  
     await editBy(Plan,req,res);
   });
 /**
@@ -278,35 +298,24 @@ router.put('/edit',async (req,res) =>{
       res.send(`Error ${error.message}`)
     }
   })
-/**
- * @swagger
- * /api/plan/uploadImages:
- *   post:
- *     summary: Upload images plan
- *     tags: [Plans]
- *     description: Upload images  plan
- *     consumes:
- *       - "multipart/form-data"
- *     produces:
- *       - "application/json"
- *     parameters:
- *       - in: formData
- *         name: file
- *         type: file
- *         description: "Archivo de imagen para subir"
- *         required: false
- *     responses:
- *       200:
- *         description: A user object
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Plan'
- *       404:
- *         description: Plan not found
- *       500:
- *         description: Internal server error
- */
-  router.post('/uploadImages',async(req,res)=>{
-    return await uploadImage(req,res);
-  })
+   
+
+
+  router.put("/users", async (req, res) => {
+    try {
+      const { userId, planId } = req.body;
+      const user = await User.findById(userId);
+      console.log(user)
+      if (!user) {
+        throw new Error("Plan no encontrado");
+      }
+  
+      const plan = await Plan.findOneAndUpdate({planId:planId},{$push:{user:user}},{new:true});
+      console.log(plan)
+      updatedPlan = await plan.save();
+  
+      res.status(200).json(`Plan Upated ${updatedPlan}`);
+    } catch (error) {
+      res.status(400).json({ message: error.message });
+    }
+  });
