@@ -116,17 +116,29 @@ router.post("/add",async (req, res) => {
       return res.status(501).send(`El campo "Descripción" no debe de estar vacio`);
     }
 
-    let planId = await autoincrement(Plan,'planId');
+    // let planId = await autoincrement(Plan,'planId');
     const newPlan = new Plan({
-      _id,
       name,
       description,
       planId,
-      featuredImg
+      featuredImg,
     });
     
     const savedPlan = await newPlan.save();
-    res.status(201).json(savedPlan);
+    
+    // Obtén el planId del plan guardado
+    const planId = savedPlan._id;
+    
+    // Asegúrate de que _id sea un ObjectId válido
+    // const _id = new ObjectId("646629fd27d3673c94710e0b");
+    
+    // Crea un objeto de usuario con el plan guardado
+    const newUser = new User({
+      plans: [{ _id: planId, name, description, featuredImg }],
+    });
+    
+    const savedUser = await newUser.save();
+    res.status(201).json(savedUser);
 
   } catch (error) {
     res.status(500).json({message: error.message});
