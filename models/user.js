@@ -48,11 +48,11 @@ const userSchema = new Schema(
     ],
     plans: [
       {
-        type: Plan.schema,
-        ref: "Plan",
+        type: Schema.Types.ObjectId, // Use Schema.Types.ObjectId for referencing
+        ref: 'Plan', // Use the model name (Plan) here
         required: false,
-        unique: false
-      }
+        unique: false,
+      },
     ],
     exercices: [
       {
