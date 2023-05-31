@@ -18,6 +18,14 @@ const planSchema = new mongoose.Schema({
   featuredImg:{
     type:String,
     default: ''
+  },user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: false
+  },
+  view:{
+    type: Number,
+    default: 0
   }
   // autorId: {
   //     type: User.schema,
