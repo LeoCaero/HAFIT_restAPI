@@ -16,6 +16,8 @@ const userSchema = new Schema(
     name: {
       type: String,
       required: true,
+      minlength: 2,
+      maxlength: 15,
     },
     biography: {
       type: String,
@@ -43,13 +45,13 @@ const userSchema = new Schema(
         type: Product.schema,
         ref: "Product",
         required: false,
-        unique: true
-      }
+        unique: true,
+      },
     ],
     plans: [
       {
-        type: Schema.Types.ObjectId, // Use Schema.Types.ObjectId for referencing
-        ref: 'Plan', // Use the model name (Plan) here
+        type: Schema.Types.ObjectId,
+        ref: "Plan",
         required: false,
         unique: false,
       },
@@ -59,33 +61,46 @@ const userSchema = new Schema(
         type: Exercice.schema,
         ref: "Exercice",
         required: false,
-        unique: false
-      }
+        unique: false,
+      },
     ],
     auth_token: {
       type: String,
-      required: false
+      required: false,
     },
   },
   { collection: "User" }
 );
-// AUTOINCREMENT
+
+// Función de pre-guardado para autoincrementar el campo userId
 userSchema.pre("save", function (next) {
   const user = this;
   if (user.isNew) {
-    return User.findOne()
+    User.findOne()
       .sort("-userId")
       .exec()
       .then((lastUser) => {
         user.userId = lastUser ? lastUser.userId + 1 : 1;
+        next();
       })
       .catch((err) => {
-        throw err;
+        next(err);
       });
   } else {
-    return Promise.resolve();
+    next();
   }
 });
+
+// Opciones de validación para el campo plans
+userSchema.path("plans").validate(function (value) {
+  // Verificar si el valor es un arreglo válido
+  if (!Array.isArray(value)) {
+    return false;
+  }
+
+  // Verificar si todos los elementos son ObjectId válidos
+  return value.every((element) => mongoose.Types.ObjectId.isValid(element));
+}, 'El campo "plans" debe ser un arreglo de ObjectIds válidos.');
 
 const User = mongoose.model("User", userSchema);
 
